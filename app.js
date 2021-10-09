@@ -111,29 +111,6 @@ app.get('/ipconfig', (req, res) => {
 	});
 });
 
-// var client = new Core({
-// 	accessKeyId: 'LTAI5tPRbsfPVGAiBPFVsjeY',
-// 	accessKeySecret: '9jk9nqFgsZpQmCO9DrxrKauTQylsyh',
-// 	endpoint: 'https://dysmsapi.aliyuncs.com',
-// 	apiVersion: '2017-05-25'
-// });
-
-// var params = {
-// 	"PhoneNumbers": "17395713242",
-// 	"SignName": "一起KPOP",
-// 	"TemplateCode": "SMS_225080181",
-// 	"TemplateParam": "{\"code\":\"666666\"}",
-// }
-
-// var requestOption = {
-// 	method: 'POST'
-// };
-
-// client.request('SendSms', params, requestOption).then((result) => {
-// 	console.log(result);
-// }, (ex) => {
-// 	console.log(ex);
-// })
 //监听端口
 app.listen(3000);
 
