@@ -1,0 +1,127 @@
+@font-face {
+    font-family: 'icomoon';
+    src:  url('fonts/icomoon.eot?m4p742');
+    src:  url('fonts/icomoon.eot?m4p742#iefix') format('embedded-opentype'),
+      url('fonts/icomoon.ttf?m4p742') format('truetype'),
+      url('fonts/icomoon.woff?m4p742') format('woff'),
+      url('fonts/icomoon.svg?m4p742#icomoon') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@-webkit-keyframes rotate{from{-webkit-transform: rotate(0deg)}
+    to{-webkit-transform: rotate(-360deg)}
+}
+@-moz-keyframes rotate{from{-moz-transform: rotate(0deg)}
+    to{-moz-transform: rotate(-359deg)}
+}
+@-o-keyframes rotate{from{-o-transform: rotate(0deg)}
+    to{-o-transform: rotate(-359deg)}
+}
+@keyframes rotate{from{transform: rotate(0deg)}
+    to{transform: rotate(-359deg)}
+}
+.animate {
+    display: inline-block;
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+    animation: rotate 1s linear infinite;
+    -moz-animation: rotate 1s linear infinite;
+    -webkit-animation: rotate 1s linear infinite;
+    -o-animation: rotate 1s linear infinite;
+    font-family: icomoon;
+    width: 18px;
+    height: 18px;
+}
+h3 {
+    font-size: 18px;
+}
+#ip,
+#address,
+#time {
+    color: rgb(110, 110, 110);
+}
+#ip .animate,
+#address .animate,
+#time .animate {
+    width: 16px;
+    height: 16px;
+}
+img {
+    display: block;
+    box-shadow: 0px 0px 10px 2px #ccc;
+    border-radius: 10px;
+}
+textarea {
+    font-size: 15px;
+    text-indent: 1rem;
+    resize: none;
+    outline: none;
+    border-radius: 5px;
+    border: none;
+    padding: 10px 15px;
+    box-shadow: 0px 0px 10px 1px #ccc;
+}
+input {
+    cursor: pointer;
+    width: 0px;
+    opacity: 0;
+}
+.input,
+button {
+    cursor: pointer;
+    background-color: #409eff;
+    border: none;
+    color: #fff;
+    height: 25px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 3px 1px #ccc;
+}
+button {
+    width: 100px;
+    cursor: pointer;
+    outline: none;
+}
+.input {
+    text-align: center;
+    line-height: 25px;
+    width: 100px;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.input span {
+    user-select: none;
+    font-size: 14px;
+}
+.img {
+    position: relative;
+    display: inline-block;
+}
+div[id^="pointer"] {
+    display: none;
+    position: absolute;
+    background-color: #ffffff00;
+    border: 2px solid #409eff;
+}
+.img span{
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background-color: pink;
+    border-radius: 50%;
+}
+.on {
+    margin-top: 10px;
+}
+.under {
+    margin-top: 10px;
+}
+.info {
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 300 !important;
+    width: 290px;
+    height: 150px;
+    background-color: #dbdcdd9c;
+}
