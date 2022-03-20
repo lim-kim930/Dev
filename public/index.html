@@ -16,12 +16,12 @@
     <h4>当前时间: <span id="date"></span><span id="time"></span><span class="animate"></span></h4>
     <hr>
     <h3 id="txtArea">暂无内容📭</h3>
-    <textarea cols="34" rows="7" id="inputArea" placeholder="随便写点啥吧🎨"></textarea>
+    <textarea cols="34" rows="7" id="inputArea" placeholder="随便写点啥吧🎨(试试XSS攻击!)"></textarea>
     <br>
     <button id="readTxt" class="on">查看云端文本</button>
     <br>
-    <button id="clearInputArea">清空输入区</button>
     <button id="uploadTxt">上传输入区</button>
+    <button id="clearInputArea">清空输入区</button>
     <hr>
     <div class="img" id="container1">
         <div id="pointer1"></div>
@@ -34,16 +34,11 @@
         <img src="" alt="" id="imgNode2">
     </div>
     <h3 id="imgLabel2">暂无内容📭</h3>
-
-    <button id="readImage" class="on">查看云端图片</button>
-    <button id="deleteImage" class="on">删除云端图片</button>
+    <button id="readImage">查看云端图片</button>
+    <button id="deleteImage">删除云端图片</button>
     <br>
-    <div id="inputDiv1" class="input">
-        <span>上传图片1</span>
-    </div>
-    <div id="inputDiv2" class="input">
-        <span>上传图片2</span>
-    </div>
+    <button id="inputDiv1" class="on">上传图片1</button>
+    <button id="inputDiv2">上传图片2</button>
     <button id="clearImgArea">清空显示区</button>
     <input type="file" id="fileInput1" accept="image/*" />
     <input type="file" id="fileInput2" accept="image/*" />

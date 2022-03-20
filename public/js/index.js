@@ -214,9 +214,9 @@ function detectAjax(imgBase64, imgWidth, index) {
         $("#imgLabel" + index).html(
             "<div class='info'>性别: " + (attributes.gender.value === "Male" ? '男' : '女') +
             "<br>年龄: " + attributes.age.value +
-            "<br>是否佩戴眼镜: " + glass +
             // "<br>嘴部遮挡程度: " + attributes.mouthstatus.surgical_mask_or_respirator + "%" +
             "<br>情绪: " + emo +
+            "<br>是否佩戴眼镜: " + glass +
             "<br>颜值(男性打分): " + parseInt(attributes.beauty.male_score) +
             " 分<br>颜值(女性打分): " + parseInt(attributes.beauty.female_score) +
             " 分</div>"
@@ -326,16 +326,16 @@ $("#deleteImage").click(() => {
 });
 // 用div触发input
 $("[id^='inputDiv']").click((e) => {
-    if (imgLoadingFlag)
-        return false;
-    imgLoadingFlag = true;
     const index = (e.target.innerText === "上传图片1" ? 1 : 2);
     $("#fileInput" + index).trigger("click");
 })
 // 用户上传图片文件后，获取base64编码并上传
 $("[id^='fileInput']").change((e) => {
+    if (imgLoadingFlag)
+        return false;
+    imgLoadingFlag = true;
     const index = (e.target.id === "fileInput1" ? 1 : 2);
-    $("#container" + index).html("<div id='pointer'" + index + "></div><img src='' id='imgNode" + index + "'>");
+    $("#container" + index).html("<div id='pointer" + index + "'></div><img src='' id='imgNode" + index + "'>");
     $("#imgNode" + index).attr("src", null);
     $("imgLabrl" + index).text("读取中...<span class ='animate'></span>");
     const file = document.querySelector('#fileInput' + index).files[0];

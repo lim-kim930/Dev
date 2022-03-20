@@ -52,7 +52,6 @@ input {
     width: 0px;
     opacity: 0;
 }
-.input,
 button {
     cursor: pointer;
     background-color: #409eff;
@@ -66,20 +65,10 @@ button {
     width: 100px;
     cursor: pointer;
     outline: none;
+    font-size: 13px;
 }
-#steal {
-    margin-left: 4px;
-}
-.input {
-    text-align: center;
-    line-height: 25px;
-    width: 100px;
+#inputDiv1 {
     margin-bottom: 10px;
-    display: inline-block;
-}
-.input span {
-    user-select: none;
-    font-size: 14px;
 }
 .img {
     position: relative;
@@ -101,16 +90,12 @@ div[id^="pointer"] {
 .on {
     margin: 10px 0;
 }
-.under {
-    margin-top: 10px;
-}
 .info {
     padding: 5px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 300 !important;
     width: 290px;
-    height: 125px;
     background-color: #dbdcdd9c;
 }
 #container {

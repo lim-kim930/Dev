@@ -10,6 +10,7 @@ const queryIp = require('node-ip2region').create();
 //阿里云
 const Core = require('@alicloud/pop-core');
 const crypto = require('crypto');
+
 //创建web服务器
 const app = express();
 
@@ -31,6 +32,30 @@ app.all("*", function (req, res, next) {
 	else
 		next();
 })
+
+// setImmediate(() => {
+// 	process.nextTick(() => {
+// 		console.log(1);
+// 	})
+// })
+// setImmediate(() => {
+// 	console.log(2);
+// })
+// process.nextTick(() => {
+// 	console.log(3);
+// })
+// process.nextTick(() => {
+// 	console.log(4);
+// })
+
+// var bar = function () {
+// 	var local = "局部变量"
+// 	// return function () {
+// 		return local;
+// 	// }
+// }
+// var baz = bar();
+// console.log(baz);
 //上传图片,存到picture.txt里
 app.post('/upload', (req, res) => {
 	fs.writeFile("picture" + req.body.index + ".txt", req.body.src, (err, data) => {
@@ -111,6 +136,29 @@ app.get('/ipconfig', (req, res) => {
 	});
 });
 
+var client = new Core({
+	accessKeyId: 'LTAI5tPRbsfPVGAiBPFVsjeY',
+	accessKeySecret: '9jk9nqFgsZpQmCO9DrxrKauTQylsyh',
+	endpoint: 'https://dysmsapi.aliyuncs.com',
+	apiVersion: '2017-05-25'
+});
+
+var params = {
+	"PhoneNumbers": "17395713242",
+	"SignName": "一起KPOP",
+	"TemplateCode": "SMS_225080181",
+	"TemplateParam": "{\"code\":\"666666\"}",
+}
+
+var requestOption = {
+	method: 'POST'
+};
+
+client.request('SendSms', params, requestOption).then((result) => {
+	console.log(result);
+}, (ex) => {
+	console.log(ex);
+})
 //监听端口
 app.listen(3000);
 
