@@ -29,7 +29,7 @@ let txtLoadingFlag = false;
         }, 1000);
     }).catch(err => {
         console.error(err);
-    })
+    });
 })();
 // 时间渲染
 function timeRender() {
@@ -97,7 +97,7 @@ function mapRender(response) {
         infoWindow.open(map, [Region.location.split(",")[0], Region.location.split(",")[1]]);
         var marker = new AMap.Marker({
             position: [Region.location.split(",")[0], Region.location.split(",")[1]]//位置
-        })
+        });
         map.add(marker);//添加到地图
         map.addControl(new AMap.ToolBar());
         map.addControl(new AMap.Scale());
@@ -129,8 +129,8 @@ function imgRender(id, src) {
         };
         img.onerror = (err) => {
             reject(err);
-        }
-    })
+        };
+    });
 }
 // 图片显示区和imgSrc重置
 function resetImgArea() {
@@ -153,7 +153,7 @@ function uplaodTxt(data) {
     }).catch(err => {
         txtLoadingFlag = false;
         console.error(err);
-    })
+    });
 }
 // 人脸识别请求函数
 function detectAjax(imgBase64, imgWidth, index) {
@@ -174,7 +174,7 @@ function detectAjax(imgBase64, imgWidth, index) {
         }
     }).then((response) => {
         if (response.faces.length === 0) {
-            $("#imgLabel" + index).text("未检测到人脸,换张照片试试吧😜")
+            $("#imgLabel" + index).text("未检测到人脸,换张照片试试吧😜");
             return false;
         }
         const width = Number($("#imgNode" + index).css('width').split('px')[0]);
@@ -183,27 +183,22 @@ function detectAjax(imgBase64, imgWidth, index) {
         // 渲染人脸关键点
         let html = "";
         for (let i = 0; i < landmarks.length; i++) {
-            html += "<span style='left: " + parmas.landmark[landmarks[i]].x * width / imgWidth + "px; top: " + parmas.landmark[landmarks[i]].y * width / imgWidth + "px'></span>"
+            html += "<span style='left: " + parmas.landmark[landmarks[i]].x * width / imgWidth + "px; top: " + parmas.landmark[landmarks[i]].y * width / imgWidth + "px'></span>";
         }
-        $("#pointer" + index).css("top", (parmas.face_rectangle.top - 2) * width / imgWidth)
-            .css("left", (parmas.face_rectangle.left - 2) * width / imgWidth)
-            .css("width", (parmas.face_rectangle.width) * width / imgWidth)
-            .css("height", (parmas.face_rectangle.height) * width / imgWidth)
-            .after(html)
-            .show();
+        $("#pointer" + index).css("top", (parmas.face_rectangle.top - 2) * width / imgWidth).css("left", (parmas.face_rectangle.left - 2) * width / imgWidth).css("width", (parmas.face_rectangle.width) * width / imgWidth).css("height", (parmas.face_rectangle.height) * width / imgWidth).after(html).show();
         // 人脸描述
         const attributes = parmas.attributes;
         let glass = "";
         switch (attributes.glass.value) {
             case "None":
-                glass = "未佩戴"
-                break
+                glass = "未佩戴";
+                break;
             case "Normal":
-                glass = "普通眼镜"
-                break
+                glass = "普通眼镜";
+                break;
             case "Dark":
-                glass = "墨镜"
-                break
+                glass = "墨镜";
+                break;
         }
         const emotion = attributes.emotion;
         const e_target = ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"];
@@ -211,21 +206,13 @@ function detectAjax(imgBase64, imgWidth, index) {
         for (let i = 0; i < 7; i++)
             if (emotion[e_target[i]] >= 40)
                 var emo = c_target[i];
-        $("#imgLabel" + index).html(
-            "<div class='info'>性别: " + (attributes.gender.value === "Male" ? '男' : '女') +
-            "<br>年龄: " + attributes.age.value +
-            // "<br>嘴部遮挡程度: " + attributes.mouthstatus.surgical_mask_or_respirator + "%" +
-            "<br>情绪: " + emo +
-            "<br>是否佩戴眼镜: " + glass +
-            "<br>颜值(男性打分): " + parseInt(attributes.beauty.male_score) +
-            " 分<br>颜值(女性打分): " + parseInt(attributes.beauty.female_score) +
-            " 分</div>"
-        )
+        // "<br>嘴部遮挡程度: " + attributes.mouthstatus.surgical_mask_or_respirator + "%" +
+        $("#imgLabel" + index).html("<div class='info'>性别: " + (attributes.gender.value === "Male" ? '男' : '女') +"<br>年龄: " + attributes.age.value +"<br>情绪: " + emo +"<br>是否佩戴眼镜: " + glass +"<br>颜值(男性打分): " + parseInt(attributes.beauty.male_score) +" 分<br>颜值(女性打分): " + parseInt(attributes.beauty.female_score) +" 分</div>");
         imgLoadingFlag = false;
     }).catch((err) => {
         $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
         imgLoadingFlag = false;
-    })
+    });
 }
 // 清空文本框
 $("#clearInputArea").click(() => {
@@ -256,7 +243,7 @@ $("#readTxt").click(() => {
         type: 'get',
         url: 'https://api.limkim.xyz/test/read'
     }).then(response => {
-        $("#txtArea").text(response.data === "" ? "暂无内容📭" : response.data);
+        $("#txtArea").html(response.data === "" ? "暂无内容📭" : response.data);
         txtLoadingFlag = false;
     }).catch(err => {
         txtLoadingFlag = false;
@@ -434,5 +421,5 @@ $("#compareImg").click(() => {
     }).catch(() => {
         imgLoadingFlag = false;
         $("[id^='imgLabel']").text("图片1或图片2体积太大啦,换张照片试试吧😜");
-    })
+    });
 });
