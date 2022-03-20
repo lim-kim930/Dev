@@ -3,7 +3,7 @@ node_modules
 /dist
 data.txt
 picture1.txt
-picture3.txt
+picture2.txt
 package-lock.json
 
 # local env files
