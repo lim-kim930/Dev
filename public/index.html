@@ -6,52 +6,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://limkim.xyz/images/logo/logo-icon.ico" type="image/x-icon">
-    <script src="js/jquery-3.5.1.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <title>测试</title>
 </head>
 
 <body>
-    <h4>你好! 来自 <span id="address"><span class="animate"></span></span> 的小可爱🍻</h4>
+    <h4><span id="greeting"></span> 来自 <span id="address"><span class="animate"></span></span> 的小可爱🍻</h4>
     <h4>你的IP为: <span id="ip"><span class="animate"></span></span></h4>
-    <h4>系统时间: <span id="time"><span class="animate"></span></span></h4>
+    <h4>当前时间: <span id="date"></span><span id="time"></span><span class="animate"></span></h4>
     <hr>
-    <h3 id="p">暂无内容📭</h3>
-    <textarea cols="34" rows="7" id="text" placeholder="随便写点啥吧🎨"></textarea>
+    <h3 id="txtArea">暂无内容📭</h3>
+    <textarea cols="34" rows="7" id="inputArea" placeholder="随便写点啥吧🎨"></textarea>
     <br>
-    <button onclick="clearTxt(2)" class="on">清空输入区</button>
-    <button onclick="writes('w')">上传输入区</button>
+    <button id="readTxt" class="on">查看云端文本</button>
     <br>
-    <button onclick="clearTxt(1)" class="under">清空显示区</button>
-    <button onclick="readTxt()">查看云端文本</button>
-    <button onclick="writes('d')">删除云端文本</button>
+    <button id="clearInputArea">清空输入区</button>
+    <button id="uploadTxt">上传输入区</button>
     <hr>
     <div class="img" id="container1">
         <div id="pointer1"></div>
-        <img src="" alt="" id="img1">
+        <img src="" alt="" id="imgNode1">
     </div>
-    <h3 id="lable1">暂无图片信息📭</h3>
+    <h3 id="imgLabel1">暂无内容📭</h3>
+
     <div class="img" id="container2">
         <div id="pointer2"></div>
-        <img src="" alt="" id="img2">
+        <img src="" alt="" id="imgNode2">
     </div>
-    <h3 id="lable2">暂无图片信息📭</h3>
-    <div class="input" onclick="getFile(1)">
+    <h3 id="imgLabel2">暂无内容📭</h3>
+
+    <button id="readImage" class="on">查看云端图片</button>
+    <button id="deleteImage" class="on">删除云端图片</button>
+    <br>
+    <div id="inputDiv1" class="input">
         <span>上传图片1</span>
-        <input type="file" onchange="getBase64(1)" id="path1" accept="image/*" />
     </div>
-    <div class="input" onclick="getFile(2)">
+    <div id="inputDiv2" class="input">
         <span>上传图片2</span>
-        <input type="file" onchange="getBase64(2)" id="path2" accept="image/*" />
     </div>
+    <button id="clearImgArea">清空显示区</button>
+    <input type="file" id="fileInput1" accept="image/*" />
+    <input type="file" id="fileInput2" accept="image/*" />
     <br>
-    <button onclick="detect(1)">识别图片1</button>
-    <button onclick="detect(2)">识别图片2</button>
-    <button onclick="compare()">对比图片</button>
-    <br>
-    <button onclick="clearPic()">清空显示区</button>
-    <button onclick="readPic()" class="on">查看云端图片</button>
-    <button onclick="deletePic()" class="on">删除云端图片</button>
+    <button id="recognizeImg1">识别图片1</button>
+    <button id="recognizeImg2">识别图片2</button>
+    <button id="compareImg">对比图片</button>
+    <div id="container"></div>
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: '2d6c385974a707d562416a0d4becae69',
+        }
+    </script>
+    <script src="https://webapi.amap.com/loader.js"></script>
+    <script src="js/jquery-3.5.1.js"></script>
     <script src="js/index.js"></script>
 </body>
 

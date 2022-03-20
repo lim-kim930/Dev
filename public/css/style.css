@@ -9,43 +9,28 @@
     font-style: normal;
     font-display: block;
 }
-@-webkit-keyframes rotate{from{-webkit-transform: rotate(0deg)}
-    to{-webkit-transform: rotate(-360deg)}
+@keyframes rotate{
+    from{transform: rotate(0deg)}
+    to{transform : rotate(-359deg)}
 }
-@-moz-keyframes rotate{from{-moz-transform: rotate(0deg)}
-    to{-moz-transform: rotate(-359deg)}
-}
-@-o-keyframes rotate{from{-o-transform: rotate(0deg)}
-    to{-o-transform: rotate(-359deg)}
-}
-@keyframes rotate{from{transform: rotate(0deg)}
-    to{transform: rotate(-359deg)}
-}
+
 .animate {
     display: inline-block;
-    -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
     animation: rotate 1s linear infinite;
-    -moz-animation: rotate 1s linear infinite;
-    -webkit-animation: rotate 1s linear infinite;
-    -o-animation: rotate 1s linear infinite;
     font-family: icomoon;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
 }
 h3 {
     font-size: 18px;
+    margin: 10px 0;
 }
-#ip,
-#address,
-#time {
+h4 span {
     color: rgb(110, 110, 110);
 }
-#ip .animate,
-#address .animate,
-#time .animate {
-    width: 16px;
-    height: 16px;
+#greeting {
+    color: #000;
 }
 img {
     display: block;
@@ -82,6 +67,9 @@ button {
     cursor: pointer;
     outline: none;
 }
+#steal {
+    margin-left: 4px;
+}
 .input {
     text-align: center;
     line-height: 25px;
@@ -111,7 +99,7 @@ div[id^="pointer"] {
     border-radius: 50%;
 }
 .on {
-    margin-top: 10px;
+    margin: 10px 0;
 }
 .under {
     margin-top: 10px;
@@ -122,6 +110,11 @@ div[id^="pointer"] {
     font-size: 16px;
     font-weight: 300 !important;
     width: 290px;
-    height: 150px;
+    height: 125px;
     background-color: #dbdcdd9c;
+}
+#container {
+    margin-top: 10px;
+    width: 100%;
+    height: 100vw;
 }
