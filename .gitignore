@@ -5,6 +5,7 @@ data.txt
 picture1.txt
 picture2.txt
 package-lock.json
+test.js
 
 # local env files
 .env.local
