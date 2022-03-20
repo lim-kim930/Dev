@@ -10,16 +10,10 @@ const imgLabel = $("[id^='imgLabel']");
 let imgLoadingFlag = false;
 let txtLoadingFlag = false;
 // 请求信息
-(() => {
+(async () => {
     $.ajax({
         type: 'get',
-        url: 'https://api.limkim.xyz/ipconfig'
-    }).then(response => {
-        mapRender(response.data);
-        return $.ajax({
-            type: 'get',
-            url: 'https://api.limkim.xyz/getSysTime'
-        });
+        url: 'https://api.limkim.xyz/getSysTime'
     }).then(response => {
         nowTimeStamp = response.Systime2;
         $(".animate").hide();
@@ -27,6 +21,14 @@ let txtLoadingFlag = false;
         setInterval(() => {
             timeRender();
         }, 1000);
+    }).catch(err => {
+        console.error(err);
+    });
+    $.ajax({
+        type: 'get',
+        url: 'https://api.limkim.xyz/ipconfig'
+    }).then(response => {
+        mapRender(response.data);
     }).catch(err => {
         console.error(err);
     });
@@ -82,7 +84,8 @@ function mapRender(response) {
     $('#address').text(city + (Region.district ? Region.district : ""));
     $('#ip').text(response.IP + isp);
     if (Region.country !== "中国")
-        return $("#container").hide();
+        return false;
+    $("#container").attr("hidden", false);
     AMapLoader.load({
         "key": "3257a21ceceb0bcd498b8288f0f10cfa",
         "version": "2.0",
