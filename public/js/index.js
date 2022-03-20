@@ -72,9 +72,17 @@ function mapRender(response) {
     const Region = response.Region;
     const CZ_Data = response.CZ_Data;
     let city = (Region.city ? Region.city : CZ_Data.city);
-    let isp = (CZ_Data.isp ? (" - " + CZ_Data.isp) : (Region.isp ? (" - " + Region.isp) : ""));
+    let isp = "";
+    if (CZ_Data.isp === "本机或本网络") {
+        if (!Region.isp)
+            isp = " - 代理";
+    }
+    else
+        isp = (CZ_Data.isp ? (" - " + CZ_Data.isp) : (Region.isp ? (" - " + Region.isp) : ""));
     $('#address').text(city + (Region.district ? Region.district : ""));
     $('#ip').text(response.IP + isp);
+    if (Region.country !== "中国")
+        return $("#container").hide();
     AMapLoader.load({
         "key": "3257a21ceceb0bcd498b8288f0f10cfa",
         "version": "2.0",
@@ -85,7 +93,7 @@ function mapRender(response) {
         ], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
     }).then((AMap) => {
         var map = new AMap.Map('container', {
-            zoom: 9,//级别
+            zoom: 8,//级别
             center: [Region.location.split(",")[0], Region.location.split(",")[1]],//中心点坐标
             viewMode: '3D',//使用3D视图
             terrain: true
@@ -207,7 +215,7 @@ function detectAjax(imgBase64, imgWidth, index) {
             if (emotion[e_target[i]] >= 40)
                 var emo = c_target[i];
         // "<br>嘴部遮挡程度: " + attributes.mouthstatus.surgical_mask_or_respirator + "%" +
-        $("#imgLabel" + index).html("<div class='info'>性别: " + (attributes.gender.value === "Male" ? '男' : '女') +"<br>年龄: " + attributes.age.value +"<br>情绪: " + emo +"<br>是否佩戴眼镜: " + glass +"<br>颜值(男性打分): " + parseInt(attributes.beauty.male_score) +" 分<br>颜值(女性打分): " + parseInt(attributes.beauty.female_score) +" 分</div>");
+        $("#imgLabel" + index).html("<div class='info'>性别: " + (attributes.gender.value === "Male" ? '男' : '女') + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emo + "<br>是否佩戴眼镜: " + glass + "<br>颜值(男性打分): " + parseInt(attributes.beauty.male_score) + " 分<br>颜值(女性打分): " + parseInt(attributes.beauty.female_score) + " 分</div>");
         imgLoadingFlag = false;
     }).catch((err) => {
         $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
