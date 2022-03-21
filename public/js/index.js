@@ -186,7 +186,7 @@ function detectAjax(imgBase64, imgWidth, index) {
     }).then((response) => {
         if (response.faces.length === 0) {
             $("#imgLabel" + index).text("未检测到人脸,换张照片试试吧😜");
-            return false;
+            return imgLoadingFlag = false;
         }
         const width = Number($("#imgNode" + index).css('width').split('px')[0]);
         const parmas = response.faces[0];
@@ -240,7 +240,7 @@ $("#uploadTxt").click(() => {
             $("#text").val("");
             return uplaodTxt("");
         }
-        return txtLoadingFlag = true;;
+        return txtLoadingFlag = false;;
     }
     uplaodTxt(data);
 });
@@ -254,6 +254,7 @@ $("#readTxt").click(() => {
         type: 'get',
         url: 'https://api.limkim.xyz/test/read'
     }).then(response => {
+        // XSS脚本注入点
         $("#txtArea").html(response.data === "" ? "暂无内容📭" : response.data);
         txtLoadingFlag = false;
     }).catch(err => {
