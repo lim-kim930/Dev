@@ -19,7 +19,7 @@ app.all("*", function (req, res, next) {
 		res.send(200);
 	else
 		next();
-})
+});
 // 监听端口
 app.listen(3000);
 console.log('server is running at port 3000.');
