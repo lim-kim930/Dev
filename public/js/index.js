@@ -8,8 +8,6 @@ let imgSrc2 = null;
 const imgLabel = $("[id^='imgLabel']");
 // 防抖
 let imgLoadingFlag = false;
-
-
 let txtLoadingFlag = false;
 // 请求信息
 (async () => {
