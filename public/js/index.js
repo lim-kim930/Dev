@@ -10,7 +10,7 @@ const imgLabel = $("[id^='imgLabel']");
 let imgLoadingFlag = false;
 let txtLoadingFlag = false;
 // 请求信息
-(async () => {
+(() => {
     $.ajax({
         type: 'get',
         url: 'https://api.limkim.xyz/getSysTime'
@@ -95,18 +95,18 @@ function mapRender(response) {
             'AMap.ControlBar'
         ], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
     }).then((AMap) => {
-        var map = new AMap.Map('container', {
+        let map = new AMap.Map('container', {
             zoom: 8,//级别
             center: [Region.location.split(",")[0], Region.location.split(",")[1]],//中心点坐标
             viewMode: '3D',//使用3D视图
             terrain: true
         });
-        var infoWindow = new AMap.InfoWindow({
+        let infoWindow = new AMap.InfoWindow({
             anchor: 'top-left',
             content: '猜你在这附近!',
         });
         infoWindow.open(map, [Region.location.split(",")[0], Region.location.split(",")[1]]);
-        var marker = new AMap.Marker({
+        let marker = new AMap.Marker({
             position: [Region.location.split(",")[0], Region.location.split(",")[1]]//位置
         });
         map.add(marker);//添加到地图
@@ -131,7 +131,7 @@ function imgRender(id, src) {
     return new Promise((resolve, reject) => {
         let img = new Image();
         img.src = src;
-        img.onload = async () => {
+        img.onload = () => {
             if (img.width >= 300)
                 $(id).css('width', 300).css('height', img.height * 300 / img.width).attr("src", src);
             else if (img.width < 300)
@@ -190,35 +190,33 @@ function detectAjax(imgBase64, imgWidth, index) {
         }
         const width = Number($("#imgNode" + index).css('width').split('px')[0]);
         const parmas = response.faces[0];
-        const landmarks = Object.keys(parmas.landmark);
         // 渲染人脸关键点
         let html = "";
-        for (let i = 0; i < landmarks.length; i++) {
-            html += "<span style='left: " + parmas.landmark[landmarks[i]].x * width / imgWidth + "px; top: " + parmas.landmark[landmarks[i]].y * width / imgWidth + "px'></span>";
-        }
-        $("#pointer" + index).css("top", (parmas.face_rectangle.top - 2) * width / imgWidth).css("left", (parmas.face_rectangle.left - 2) * width / imgWidth).css("width", (parmas.face_rectangle.width) * width / imgWidth).css("height", (parmas.face_rectangle.height) * width / imgWidth).after(html).show();
+        Object.keys(parmas.landmark).forEach(landmark=>{
+            html += "<span style='left: " + parmas.landmark[landmark].x * width / imgWidth + "px; top: " + parmas.landmark[landmark].y * width / imgWidth + "px'></span>";
+        })
+        const rec_data = parmas.face_rectangle;
+        $("#pointer" + index).css("top", (rec_data.top - 2) * width / imgWidth).css("left", (rec_data.left - 2) * width / imgWidth).css("width", (rec_data.width) * width / imgWidth).css("height", (rec_data.height) * width / imgWidth).after(html).show();
         // 人脸描述
         const attributes = parmas.attributes;
-        let glass = "";
-        switch (attributes.glass.value) {
-            case "None":
-                glass = "未佩戴";
-                break;
-            case "Normal":
-                glass = "普通眼镜";
-                break;
-            case "Dark":
-                glass = "墨镜";
-                break;
-        }
+        const glass = attributes.glass.value === "None" ? "未佩戴" : (attributes.glass.value === "Normal" ? "普通眼镜" : "墨镜");
+        const gender = attributes.gender.value === "Male" ? "男" : "女";
         const emotion = attributes.emotion;
-        const e_target = ["anger", "disgust", "fear", "happiness", "neutral", "sadness", "surprise"];
-        const c_target = ["愤怒", "厌恶", "恐惧", "高兴", "平静", "伤心", "惊讶"];
-        for (let i = 0; i < 7; i++)
-            if (emotion[e_target[i]] >= 40)
-                var emo = c_target[i];
-        // "<br>嘴部遮挡程度: " + attributes.mouthstatus.surgical_mask_or_respirator + "%" +
-        $("#imgLabel" + index).html("<div class='info'>性别: " + (attributes.gender.value === "Male" ? '男' : '女') + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emo + "<br>是否佩戴眼镜: " + glass + "<br>颜值(男性打分): " + parseInt(attributes.beauty.male_score) + " 分<br>颜值(女性打分): " + parseInt(attributes.beauty.female_score) + " 分</div>");
+        let emo = "";
+        const translation = {
+            "anger": "愤怒",
+            "disgust": "厌恶",
+            "fear": "恐惧",
+            "happiness": "高兴",
+            "neutral": "平静",
+            "sadness": "伤心",
+            "surprise": "惊讶"
+        }
+        Object.keys(emotion).forEach(key => {
+            if (emotion[key] >= 40)
+                emo = translation[key];
+        })
+        $("#imgLabel" + index).html("<div class='info'>性别: " + gender + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emo + "<br>眼镜: " + glass + "<br>颜值打分(男性): " + parseInt(attributes.beauty.male_score) + " 分<br>颜值打分(女性): " + parseInt(attributes.beauty.female_score) + " 分</div>");
         imgLoadingFlag = false;
     }).catch((err) => {
         $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
