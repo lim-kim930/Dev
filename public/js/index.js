@@ -71,19 +71,19 @@ function timeRender() {
 }
 // 地图和IP渲染
 function mapRender(response) {
-    const Region = response.Region;
-    const CZ_Data = response.CZ_Data;
-    let city = (Region.city ? Region.city : CZ_Data.city);
+    const AmapData = response.AmapData;
+    const czData = response.czData;
+    let city = (AmapData.city ? AmapData.city : czData.city);
     let isp = "";
-    if (CZ_Data.isp === "本机或本网络") {
-        if (!Region.isp)
+    if (czData.isp === "本机或本网络") {
+        if (!AmapData.isp)
             isp = " - 代理";
     }
     else
-        isp = (CZ_Data.isp ? (" - " + CZ_Data.isp) : (Region.isp ? (" - " + Region.isp) : ""));
-    $('#address').text(city + (Region.district ? Region.district : ""));
+        isp = (czData.isp ? (" - " + czData.isp) : (AmapData.isp ? (" - " + AmapData.isp) : ""));
+    $('#address').text(city + (AmapData.district ? AmapData.district : ""));
     $('#ip').text(response.IP + isp);
-    if (Region.country !== "中国")
+    if (AmapData.country !== "中国")
         return false;
     $("#container").attr("hidden", false);
     AMapLoader.load({
@@ -97,7 +97,7 @@ function mapRender(response) {
     }).then((AMap) => {
         let map = new AMap.Map('container', {
             zoom: 8,//级别
-            center: [Region.location.split(",")[0], Region.location.split(",")[1]],//中心点坐标
+            center: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]],//中心点坐标
             viewMode: '3D',//使用3D视图
             terrain: true
         });
@@ -105,9 +105,9 @@ function mapRender(response) {
             anchor: 'top-left',
             content: '猜你在这附近!',
         });
-        infoWindow.open(map, [Region.location.split(",")[0], Region.location.split(",")[1]]);
+        infoWindow.open(map, [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]);
         let marker = new AMap.Marker({
-            position: [Region.location.split(",")[0], Region.location.split(",")[1]]//位置
+            position: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]//位置
         });
         map.add(marker);//添加到地图
         map.addControl(new AMap.ToolBar());
