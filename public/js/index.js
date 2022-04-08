@@ -84,7 +84,7 @@ function mapRender(response) {
     let city = "";
     if (czData.city) {
         czData.city = czData.city.split("省")[1] || czData.city;
-        if (AmapData.city.length >= czData.city)
+        if (AmapData.city.length >= czData.city.length)
             city = AmapData.city;
         else
             city = czData.city;
