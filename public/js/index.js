@@ -83,26 +83,32 @@ function mapRender(response) {
     const czData = response.czData;
     let city = "";
     if (czData.city) {
-        czData.city = czData.city.split("省")[1] || czData.city;
-        if (AmapData.city && AmapData.city.length >= czData.city.length)
+        // 首先判断是不是省份, 直辖市可以直接进入长度判断
+        if (czData.city.indexOf("省") !== -1)
+            czData.city = czData.city.split("省")[1] || ""; // 这里拿到省后面的信息, 没有则说明只有省, 置为空, 下面直接使用AmapData
+        // 如果AmapData的数据更长, 就使用
+        if (AmapData.city && AmapData.city.length > czData.city.length)
             city = AmapData.city;
         else
             city = czData.city;
     }
     else {
+        // czData没数据直接使用AmapData
         city = AmapData.city ? AmapData.city : "不知道哪里";
     }
     let isp = "";
-    if (czData.isp === "本机或本网络") {
-        if (!AmapData.isp)
-            isp = " - 代理";
+    if (czData.isp) {
+        if (czData.isp === "本机或本网络")
+            isp = AmapData.isp ? (" - " + AmapData.isp) : " - 代理";
+        else {
+            if (AmapData.isp)
+                isp = AmapData.isp.length > czData.isp.length ? (" - " + AmapData.isp) : (" - " + czData.isp);
+            else
+                isp = " - " + czData.isp;
+        }
     }
-    else {
-        if (czData.isp)
-            isp = (czData.isp.length >= AmapData.isp.length ? (" - " + czData.isp) : (AmapData.isp ? (" - " + AmapData.isp) : ""));
-        else
-            isp = (AmapData.isp ? (" - " + AmapData.isp) : "");
-    }
+    else
+        isp = AmapData.isp ? (" - " + AmapData.isp) : "";
     $('#address').text(city + (AmapData.district ? AmapData.district : ""));
     $('#ip').text(response.IP + isp);
     if (AmapData.country !== "中国")
@@ -415,7 +421,7 @@ $("#compareImg").click(() => {
         $("#imgLabel1").text("暂无图片1信息📭");
     if ($("#imgLabel2").text() === "暂无内容📭" || !imgSrc2)
         $("#imgLabel2").text("暂无图片2信息📭");
-    if($("#imgLabel1").text() === "暂无图片1信息📭" || $("#imgLabel2").text() === "暂无图片2信息📭")
+    if ($("#imgLabel1").text() === "暂无图片1信息📭" || $("#imgLabel2").text() === "暂无图片2信息📭")
         return;
     imgLoadingFlag = true;
     $("[id^='imgLabel']").html("上传比对中...<span class ='animate'></span>")
