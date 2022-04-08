@@ -73,14 +73,28 @@ function timeRender() {
 function mapRender(response) {
     const AmapData = response.AmapData;
     const czData = response.czData;
-    let city = (AmapData.city ? AmapData.city : czData.city);
+    let city = "";
+    if (czData.city) {
+        czData.city = czData.city.split("省")[1] || czData.city;
+        if (AmapData.city.length >= czData.city)
+            city = AmapData.city;
+        else
+            city = czData.city;
+    }
+    else {
+        city = AmapData.city ? AmapData.city : "不知道哪里";
+    }
     let isp = "";
     if (czData.isp === "本机或本网络") {
         if (!AmapData.isp)
             isp = " - 代理";
     }
-    else
-        isp = (czData.isp ? (" - " + czData.isp) : (AmapData.isp ? (" - " + AmapData.isp) : ""));
+    else {
+        if (czData.isp)
+            isp = (czData.isp.length >= AmapData.isp.length ? (" - " + czData.isp) : (AmapData.isp ? (" - " + AmapData.isp) : ""));
+        else
+            isp = (AmapData.isp ? (" - " + AmapData.isp) : "");
+    }
     $('#address').text(city + (AmapData.district ? AmapData.district : ""));
     $('#ip').text(response.IP + isp);
     if (AmapData.country !== "中国")
@@ -170,20 +184,11 @@ function uplaodTxt(data) {
 function detectAjax(imgBase64, imgWidth, index) {
     $("#imgLabel" + index).html("正在检测人脸...<span class ='animate'></span>");
     $.ajax({
-        // type: 'post',
-        // url: 'https://api.limkim.xyz/faceDetect',
-        // data: { imgBase64 }
-        type: "post",
-        url: "https://api-cn.faceplusplus.com/facepp/v3/detect",
-        data: {
-            "api_key": "PRNA1wgDSB9iCn0oVW6RMDiRNpU42SzF",
-            "api_secret": "yNRiYEIr0ZS_TsTSqEUI29wq3orEiQKb",
-            "image_base64": imgBase64,
-            "return_landmark": 2,
-            // "return_attributes": "gender,age,eyestatus,mouthstatus,emotion,beauty"
-            "return_attributes": "gender,age,eyestatus,emotion,beauty"
-        }
+        type: 'post',
+        url: 'https://api.limkim.xyz/faceDetect',
+        data: { imgBase64 }
     }).then((response) => {
+        response = response.data;
         if (response.faces.length === 0) {
             $("#imgLabel" + index).text("未检测到人脸,换张照片试试吧😜");
             return imgLoadingFlag = false;
@@ -192,7 +197,7 @@ function detectAjax(imgBase64, imgWidth, index) {
         const parmas = response.faces[0];
         // 渲染人脸关键点
         let html = "";
-        Object.keys(parmas.landmark).forEach(landmark=>{
+        Object.keys(parmas.landmark).forEach(landmark => {
             html += "<span style='left: " + parmas.landmark[landmark].x * width / imgWidth + "px; top: " + parmas.landmark[landmark].y * width / imgWidth + "px'></span>";
         })
         const rec_data = parmas.face_rectangle;
