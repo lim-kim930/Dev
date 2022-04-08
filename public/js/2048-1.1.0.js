@@ -315,11 +315,16 @@ consoleRender.prototype.init = function (game) {
     console.log('%c芜湖~! 感谢访问俺滴小破站, 既然打开了控制台, 那就试试在这里玩2048吧!%c', 'color:#999;font-family:幼圆;font-size:14px', '');
 
     const args = [
-        '点击一下网页空白处, 确保焦点在网页上, 并敲击 %c回车%c 开始游戏, 你可以使用 %c方向键%c 或者 %cW A S D%c 来控制, 也可以使用 %cZ%c 来回退操作.'
-        , 'color:red;font-weight:bold;', ''
-        , 'color:red;font-weight:bold;', ''
-        , 'color:red;font-weight:bold;', ''
-        , 'color:red;font-weight:bold;', ''
+        '%c点击一下网页空白处, 确保焦点在网页上, 并敲击%c %c回车%c %c开始游戏, 你可以使用%c %c方向键%c %c或者%c %cW A S D%c %c来控制, 也可以使用%c %cZ%c %c来回退操作.%c'
+        , 'color:#999;font-family:幼圆;font-size:14px', ''
+        , 'color:red;font-weight:bold;font-family:幼圆;font-size:14px', ''
+        , 'color:#999;font-family:幼圆;font-size:14px', ''
+        , 'color:red;font-weight:bold;font-family:幼圆;font-size:14px', ''
+        , 'color:#999;font-family:幼圆;font-size:14px', ''
+        , 'color:red;font-weight:bold;font-family:幼圆;font-size:14px', ''
+        , 'color:#999;font-family:幼圆;font-size:14px', ''
+        , 'color:red;font-weight:bold;font-family:幼圆;font-size:14px', ''
+        , 'color:#999;font-family:幼圆;font-size:14px', ''
     ];
     console.log.apply(console, args);
 
