@@ -32,6 +32,14 @@ let txtLoadingFlag = false;
     }).catch(err => {
         console.error(err);
     });
+    // 2048开始
+    if (!console) return;
+
+    const gm2048 = new gmFactory(4);
+    const chromerenderer = new consoleRender();
+    gm2048.setRenderer(chromerenderer);
+
+    chromerenderer.render(gm2048.tiles, gm2048.actions, true);
 })();
 // 时间渲染
 function timeRender() {
@@ -263,6 +271,7 @@ $("#readTxt").click(() => {
     }).catch(err => {
         txtLoadingFlag = false;
         console.error(err);
+        err.to
     });
 });
 // 清空图片显示区
@@ -381,7 +390,6 @@ $("[id^='fileInput']").change((e) => {
 $("[id^='recognizeImg']").click((e) => {
     if (imgLoadingFlag)
         return false;
-    imgLoadingFlag = true;
     const index = (e.target.id === "recognizeImg1" ? 1 : 2);
     if (index === 1 && imgSrc1 === null) {
         $("#imgLabel1").text("暂无图片1信息📭")
@@ -391,6 +399,7 @@ $("[id^='recognizeImg']").click((e) => {
         $("#imgLabel2").text("暂无图片2信息📭")
         return false;
     }
+    imgLoadingFlag = true;
     image_base64 = (index === 1 ? imgSrc1 : imgSrc2);
     let img = new Image();
     img.src = image_base64;
@@ -402,11 +411,13 @@ $("[id^='recognizeImg']").click((e) => {
 $("#compareImg").click(() => {
     if (imgLoadingFlag)
         return false;
-    imgLoadingFlag = true;
-    if ($("#imgLabel1").text() === "暂无内容📭" || $("#imgLabel1").text() === "暂无图片1信息📭")
+    if ($("#imgLabel1").text() === "暂无内容📭" || !imgSrc1)
         $("#imgLabel1").text("暂无图片1信息📭");
-    if ($("#imgLabel2").text() === "暂无内容📭" || $("#imgLabel2").text() === "暂无图片2信息📭")
-        return $("#imgLabel2").text("暂无图片2信息📭");
+    if ($("#imgLabel2").text() === "暂无内容📭" || !imgSrc2)
+        $("#imgLabel2").text("暂无图片2信息📭");
+    if($("#imgLabel1").text() === "暂无图片1信息📭" || $("#imgLabel2").text() === "暂无图片2信息📭")
+        return;
+    imgLoadingFlag = true;
     $("[id^='imgLabel']").html("上传比对中...<span class ='animate'></span>")
     $.ajax({
         type: 'post',

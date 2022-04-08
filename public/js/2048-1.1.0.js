@@ -331,13 +331,13 @@ consoleRender.prototype.init = function (game) {
 
 };
 
-(() => {
+// (() => {
 
-    if (!console) return;
+//     if (!console) return;
 
-    const gm2048 = new gmFactory(4);
-    const chromerenderer = new consoleRender();
-    gm2048.setRenderer(chromerenderer);
+//     const gm2048 = new gmFactory(4);
+//     const chromerenderer = new consoleRender();
+//     gm2048.setRenderer(chromerenderer);
 
-    chromerenderer.render(gm2048.tiles, gm2048.actions, true);
-})();
+//     chromerenderer.render(gm2048.tiles, gm2048.actions, true);
+// })();

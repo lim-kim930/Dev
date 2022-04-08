@@ -38,6 +38,7 @@ img {
     border-radius: 10px;
 }
 textarea {
+    font-family: "YouYuan","幼圆";
     font-size: 15px;
     text-indent: 1rem;
     resize: none;
