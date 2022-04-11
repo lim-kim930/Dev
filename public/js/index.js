@@ -87,8 +87,8 @@ function mapRender(response) {
         if (czData.city.indexOf("省") !== -1)
             czData.city = czData.city.split("省")[1] || ""; // 这里拿到省后面的信息, 没有则说明只有省, 置为空, 下面直接使用AmapData
         // 如果AmapData的数据更长, 就使用
-        if (AmapData.city && AmapData.city.length > czData.city.length)
-            city = AmapData.city;
+        if (AmapData.city && AmapData.city !== czData.city)
+            city = AmapData.city + (czData.city ? ("/" + czData.city) : "");
         else
             city = czData.city;
     }
@@ -109,7 +109,7 @@ function mapRender(response) {
     }
     else
         isp = AmapData.isp ? (" - " + AmapData.isp) : "";
-    $('#address').text(city + (AmapData.district ? AmapData.district : ""));
+    $('#address').text(city + " " + (AmapData.district ? AmapData.district : ""));
     $('#ip').text(response.IP + isp);
     if (AmapData.country !== "中国")
         return false;
