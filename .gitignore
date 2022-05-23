@@ -1,11 +1,6 @@
 .DS_Store
 node_modules
 /dist
-data.txt
-picture1.txt
-picture2.txt
-test.js
-package-lock.json
 
 # local env files
 .env.local
