@@ -9,8 +9,9 @@ const imgLabel = $("[id^='imgLabel']");
 // 防抖
 let imgLoadingFlag = false;
 let txtLoadingFlag = false;
-// 请求信息
+
 (() => {
+    // 请求信息
     $.ajax({
         type: 'get',
         url: 'https://api.limkim.xyz/getSysTime'
@@ -82,35 +83,73 @@ function mapRender(response) {
     const AmapData = response.AmapData;
     const czData = response.czData;
     let city = "";
-    if (czData.city) {
-        // 首先判断是不是省份, 直辖市可以直接进入长度判断
-        if (czData.city.indexOf("省") !== -1)
-            czData.city = czData.city.split("省")[1] || ""; // 这里拿到省后面的信息, 没有则说明只有省, 置为空, 下面直接使用AmapData
-        // 如果AmapData的数据更长, 就使用
-        if (AmapData.city && AmapData.city !== czData.city)
-            city = AmapData.city + (czData.city ? ("/" + czData.city) : "");
-        else
-            city = czData.city;
-    }
-    else {
-        // czData没数据直接使用AmapData
-        city = AmapData.city ? AmapData.city : "不知道哪里";
-    }
-    let isp = "";
-    if (czData.isp) {
-        if (czData.isp === "本机或本网络")
-            isp = AmapData.isp ? (" - " + AmapData.isp) : " - 代理";
-        else {
-            if (AmapData.isp)
-                isp = AmapData.isp.length > czData.isp.length ? (" - " + AmapData.isp) : (" - " + czData.isp);
+    // 首先判断是不是省份, 过滤掉直辖市和国外
+    if (czData.city && czData.city.indexOf("省") !== -1)
+        // 这里拿到省后面的信息也就是市, 若没有则置为空, 此后czData.city只可能为**市, 直辖市, 香港, 澳门, 国外, 空
+        czData.city = czData.city.split("省")[1] || "";
+    // else {
+    //     // 直辖市不用管, 直接和AmapData比较就行
+    //     const list = ["重庆市", "北京市", "天津市", "上海市", "香港", "澳门"];
+    //     // 基本就可以确定为国外
+    //     if (list.indexOf(czData.city) === -1) {
+    //         city = AmapData.city + (czData.city ? ("/" + czData.city) : "");
+    //     }
+    // }
+    // 和AmapData比较, 不一致就都显示
+    // if (AmapData.city && AmapData.city !== czData.city)
+    //     city = czData.city + "(" + AmapData.city + ")";
+    // else
+    //     city = czData.city;
+
+    // AmapData有city数据
+    if (AmapData.city) {
+        // 非中国的情况, 要注意"加利福尼亚州"这种province字段
+        if (AmapData.country !== "中国" && AmapData.country !== "台湾") {
+            // czData可能和AmapData不一致
+            if (czData.city && AmapData.city !== czData.city) {
+                city = czData.city + "(" + AmapData.city + ")";
+            }
             else
-                isp = " - " + czData.isp;
+                city = AmapData.city;
+        }
+        // 在中国不需要考虑province
+        else {
+            if (czData.city && AmapData.city !== czData.city) {
+                city = czData.city + "(" + AmapData.city + ")";
+            }
+            else
+                city = AmapData.city;
         }
     }
+    else {
+        // AmapData没数据直接使用czData
+        city = czData.city ? czData.city : "NO WHERE";
+    }
+    // 区目前只有AmapData会有
+    const district = AmapData.district ? AmapData.district : "";
+
+    let isp = "";
+    // czData有isp数据
+    if (czData.isp) {
+        // 如果czData的isp数据为未知, 一般代理国外ip会出现这种情况, 就去判断AmapData有没有isp, 也没有就直接标识代理
+        if (czData.isp === "本机或本网络")
+            isp = AmapData.isp ? AmapData.isp : "未知属地/代理IP";
+        // 如果czData的isp正常
+        else {
+            // 有很多情况会和AmapData显示并不一致, 为了提高信息的详细程度, 此时展示两个数据
+            // 此外考虑有一种情况需要排除{ czData: 移动(全省通用), AmapData: 移动 }
+            if (AmapData.isp && AmapData.isp !== czData.isp && czData.isp.indexOf(AmapData.isp) === -1)
+                isp = czData.isp + "(" + AmapData.isp + ")";
+            else
+                isp = czData.isp;
+        }
+    }
+    // czData没有isp数据
     else
-        isp = AmapData.isp ? (" - " + AmapData.isp) : "";
-    $('#address').text(city + " " + (AmapData.district ? AmapData.district : ""));
-    $('#ip').text(response.IP + isp);
+        isp = AmapData.isp ? AmapData.isp : "未知属地/代理IP";
+
+    $('#address').text(city + " " + district);
+    $('#ip').text(response.IP + " - " + isp);
     if (AmapData.country !== "中国")
         return false;
     $("#container").attr("hidden", false);
