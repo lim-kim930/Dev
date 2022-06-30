@@ -1,20 +1,21 @@
-import { gmFactory, consoleRender } from "./2048/index.js"
-import {} from "jquery"
+// import { gmFactory, consoleRender } from "./2048"
+import $ from "jquery"
 
-type nullORstr = null | string
-type nullORnum = null | number
+type ImgSrc = null | string
+type OperationType = "txt" | "img"
+type ImageNodeId = "#imgNode1" | "#imgNode2"
 
 let nowTimeStamp: number = 0;
 let lastSecondTime = {
     "Hour": -1,
     "Time": ""
 };
-let imgSrc1: nullORstr = null;
-let imgSrc2: nullORstr = null;
+let imgSrc1: ImgSrc = null;
+let imgSrc2: ImgSrc = null;
 const imgLabel = $("[id^='imgLabel']");
-// 防抖
-let imgLoadingFlag = false;
-let txtLoadingFlag = false;
+// 锁
+let imgLoadingFlag: boolean = false;
+let txtLoadingFlag: boolean = false;
 
 (() => {
     // 请求信息
@@ -39,14 +40,14 @@ let txtLoadingFlag = false;
     }).catch(err => {
         console.error(err);
     });
-    // 2048开始
-    if (!console) return;
+    // // 2048开始
+    // if (!console) return;
 
-    const gm2048 = new gmFactory(4);
-    const chromerenderer = new consoleRender();
-    gm2048.setRenderer(chromerenderer);
+    // const gm2048 = gmFactory(4);
+    // const chromerenderer = new consoleRender();
+    // gm2048.setRenderer(chromerenderer);
 
-    chromerenderer.render(gm2048.tiles, gm2048.actions, true);
+    // chromerenderer.render(gm2048.tiles, gm2048.actions, true);
 })();
 // 时间渲染
 function timeRender() {
@@ -157,42 +158,42 @@ function mapRender(response: any) {
     $('#address').text(city + " " + district);
     $('#ip').text(response.IP + " - " + isp);
     if (AmapData.country !== "中国")
-        return false;
-    $("#container").attr("hidden", false);
-    AMapLoader.load({
-        "key": "3257a21ceceb0bcd498b8288f0f10cfa",
-        "version": "2.0",
-        "plugins": [
-            'AMap.ToolBar',
-            'AMap.Scale',
-            'AMap.ControlBar'
-        ], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
-    }).then((AMap) => {
-        let map = new AMap.Map('container', {
-            zoom: 8,//级别
-            center: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]],//中心点坐标
-            viewMode: '3D',//使用3D视图
-            terrain: true
-        });
-        let infoWindow = new AMap.InfoWindow({
-            anchor: 'top-left',
-            content: '猜你在这附近!',
-        });
-        infoWindow.open(map, [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]);
-        let marker = new AMap.Marker({
-            position: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]//位置
-        });
-        map.add(marker);//添加到地图
-        map.addControl(new AMap.ToolBar());
-        map.addControl(new AMap.Scale());
-        map.addControl(new AMap.ControlBar());
-    }).catch((e) => {
-        console.error(e);  //加载错误提示
-    });
+        return;
+    $("#container").attr("hidden", "false");
+    // AMapLoader.load({
+    //     "key": "3257a21ceceb0bcd498b8288f0f10cfa",
+    //     "version": "2.0",
+    //     "plugins": [
+    //         'AMap.ToolBar',
+    //         'AMap.Scale',
+    //         'AMap.ControlBar'
+    //     ], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
+    // }).then((AMap) => {
+    //     let map = new AMap.Map('container', {
+    //         zoom: 8,//级别
+    //         center: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]],//中心点坐标
+    //         viewMode: '3D',//使用3D视图
+    //         terrain: true
+    //     });
+    //     let infoWindow = new AMap.InfoWindow({
+    //         anchor: 'top-left',
+    //         content: '猜你在这附近!',
+    //     });
+    //     infoWindow.open(map, [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]);
+    //     let marker = new AMap.Marker({
+    //         position: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]//位置
+    //     });
+    //     map.add(marker);//添加到地图
+    //     map.addControl(new AMap.ToolBar());
+    //     map.addControl(new AMap.Scale());
+    //     map.addControl(new AMap.ControlBar());
+    // }).catch((e) => {
+    //     console.error(e);  //加载错误提示
+    // });
 }
 // 渲染加载动画和提示
-function startLoading(id, content) {
-    if (id === "txt")
+function startLoading(type: OperationType, content?: string) {
+    if (type === "txt")
         $("#txtArea").html(content + "<span class ='animate'></span>");
     else {
         imgLabel.html("加载中...<span class ='animate'></span>");
@@ -200,7 +201,7 @@ function startLoading(id, content) {
     }
 }
 // 图片渲染，传入img标签id和图片地址，算出适应高度并渲染
-function imgRender(id, src) {
+function imgRender(id: ImageNodeId, src: string) {
     return new Promise((resolve, reject) => {
         let img = new Image();
         img.src = src;
@@ -224,7 +225,7 @@ function resetImgArea() {
     $("#container2").html("<div id='pointer2'></div><img src='' id='imgNode2'>");
 }
 // 写入文本方法
-function uplaodTxt(data) {
+function uplaodTxt(data: string) {
     startLoading("txt", "提交中...");
     $.ajax({
         type: 'post',
@@ -240,7 +241,7 @@ function uplaodTxt(data) {
     });
 }
 // 人脸识别请求函数
-function detectAjax(imgBase64, imgWidth, index) {
+function detectAjax(imgBase64: string, imgWidth: number, index: number) {
     $("#imgLabel" + index).html("正在检测人脸...<span class ='animate'></span>");
     $.ajax({
         type: 'post',
@@ -267,7 +268,7 @@ function detectAjax(imgBase64, imgWidth, index) {
         const gender = attributes.gender.value === "Male" ? "男" : "女";
         const emotion = attributes.emotion;
         let emo = "";
-        const translation = {
+        const translation: {[key: string]: string} = {
             "anger": "愤怒",
             "disgust": "厌恶",
             "fear": "恐惧",
@@ -296,7 +297,7 @@ $("#uploadTxt").click(() => {
     if (txtLoadingFlag)
         return false;
     txtLoadingFlag = true;
-    const data = $("#inputArea").val();
+    const data = $("#inputArea").val() as string;
     if (data === "" || (data !== "" && $.trim(data) === "")) {
         if (confirm("输入内容为空,是否继续提交？")) {
             $("#text").val("");
@@ -322,7 +323,6 @@ $("#readTxt").click(() => {
     }).catch(err => {
         txtLoadingFlag = false;
         console.error(err);
-        err.to
     });
 });
 // 清空图片显示区
@@ -381,7 +381,7 @@ $("#deleteImage").click(() => {
             resetImgArea();
         }
         imgLoadingFlag = false;
-    }).catch(() => {
+    }).catch((err) => {
         imgLoadingFlag = false;
         console.error(err);
     });
@@ -400,8 +400,10 @@ $("[id^='fileInput']").change((e) => {
     $("#container" + index).html("<div id='pointer" + index + "'></div><img src='' id='imgNode" + index + "'>");
     $("#imgNode" + index).attr("src", null);
     $("imgLabrl" + index).text("读取中...<span class ='animate'></span>");
-    const file = document.querySelector('#fileInput' + index).files[0];
-    document.querySelector('#fileInput' + index).value = "";
+    const fileElement = document.getElementById('fileInput' + index) as HTMLInputElement;
+    const files = fileElement.files as FileList
+    const file = files[0]
+    fileElement.value = ""
     let base64Url = "";
     let reader = new FileReader();
     reader.readAsDataURL(file);
@@ -410,7 +412,7 @@ $("[id^='fileInput']").change((e) => {
         imgLoadingFlag = false;
     };
     reader.onload = () => {
-        base64Url = reader.result;
+        base64Url = reader.result as string;
         $("#imgLabel" + index).html("提交中...<span class ='animate'></span>");
         $.ajax({
             type: 'post',
@@ -423,14 +425,14 @@ $("[id^='fileInput']").change((e) => {
             let imgWidth = 1;
             if (index === 1) {
                 imgSrc1 = base64Url;
-                imgWidth = await imgRender("#imgNode1", base64Url);
+                imgWidth = await imgRender("#imgNode1", base64Url) as number;
             }
             else {
                 imgSrc2 = base64Url;
-                imgWidth = await imgRender("#imgNode2", base64Url);
+                imgWidth = await imgRender("#imgNode2", base64Url) as number;
             }
             detectAjax(base64Url, imgWidth, index);
-        }).catch((err) => {
+        }).catch((err: JQueryXHR) => {
             if (err.status === 413)
                 $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
             imgLoadingFlag = false;
@@ -451,11 +453,11 @@ $("[id^='recognizeImg']").click((e) => {
         return false;
     }
     imgLoadingFlag = true;
-    image_base64 = (index === 1 ? imgSrc1 : imgSrc2);
+    const image_base64 = (index === 1 ? imgSrc1 : imgSrc2);
     let img = new Image();
-    img.src = image_base64;
+    img.src = image_base64 as string;
     img.onload = () => {
-        detectAjax(image_base64, img.width, index);
+        detectAjax(image_base64 as string, img.width, index);
     }
 });
 // 对比照片人脸匹配度

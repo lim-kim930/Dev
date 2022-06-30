@@ -1,7 +1,10 @@
 {
+    "exclude": ["./src/2048/*"],
     "compilerOptions": {
         "module": "es2015",
         "target": "es6",
-        "strict": true
+        "strict": true,
+        "moduleResolution": "Node",
+        "allowSyntheticDefaultImports": true
     }
 }

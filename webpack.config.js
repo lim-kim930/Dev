@@ -7,7 +7,7 @@ module.exports = {
         path: path.resolve(__dirname, "dist"),
         filename: "bundle.js"
     },
-    // mode: "production",
+    mode: "production",
     module: {
         rules: [
             {
@@ -19,7 +19,8 @@ module.exports = {
     },
     plugins: [
         new HTMLWebpackPlugin({
-            title: "测试6666"
+            title: "测试6666",
+            template: "./public/index.html"
         })
     ]
 }
