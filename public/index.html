@@ -4,16 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="shortcut icon" href="https://dev.limkim.xyz/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="./css/style.css">
     <title>测试</title>
 </head>
 
 <body>
-    <h4><span id="greeting"></span> 来自 <span id="address"><span class="animate"></span></span> 的小可爱🍻</h4>
-    <h4>你的IP为: <span id="ip"><span class="animate"></span></span></h4>
-    <h4>当前时间: <span id="date"></span><span id="time"></span><span class="animate"></span></h4>
+    <h4><span id="greeting"></span>&nbsp;来自&nbsp;<span id="address"><img class="animate"></img></span>&nbsp;的小可爱🍻</h4>
+    <h4>你的IP为: <span id="ip"><img class="animate"></img></span></h4>
+    <h4>当前时间: <span id="date"></span><span id="time"></span><img class="animate"></img></h4>
     <hr>
     <h3 id="txtArea">暂无内容📭</h3>
     <textarea cols="34" rows="7" id="inputArea" placeholder="随便写点啥吧🎨(试试XSS攻击!不过当然有特殊关键词过滤啦)"></textarea>
@@ -47,11 +46,8 @@
     <button id="recognizeImg2">识别图片2</button>
     <button id="compareImg">对比图片</button>
     <div id="container" hidden></div>
-    <script type="text/javascript">
-        window._AMapSecurityConfig = { securityJsCode: '2d6c385974a707d562416a0d4becae69' };
-    </script>
-    <!-- <script src="https://webapi.amap.com/loader.js"></script>
-    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="https://webapi.amap.com/loader.js"></script>
+    <!-- <script src="./js/jquery-3.6.0.min.js"></script>
     <script src="./js/2048-1.1.0.min.js"></script>
     <script src="./js/index.min.js"></script> -->
 </body>

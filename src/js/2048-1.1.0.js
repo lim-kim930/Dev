@@ -4,9 +4,10 @@
  */
 
 // TODO: 增加游戏结束判断
+// TODO: 保存游戏进度，每一分钟自动保存
 const gmFactory = function (size) {
 
-    let moves;
+    let moves; // 目前为止总共的步数
     let tiles, max = moves = 0, winScores = 2048, actions = [], histories = [];
 
     let events = { 'start': [], 'end': [], 'move': [] };
@@ -53,31 +54,34 @@ const gmFactory = function (size) {
                 }
             });
 
+            // 随机产生六个方块
             for (i = 0; i < 6; i++) {
                 this.randomVal();
             }
-        }
-        , randomVal: function () {
+        },
+        // 渲染一个方块
+        randomVal: function () {
             let emptyTiles = [];
+            // 把空的方块的index存起来
             for (let i = 0; i < tiles.length; i++) {
                 if (tiles[i] == 0) emptyTiles.push(i);
             }
-
             if (emptyTiles.length < 1) {
                 return false;
             }
-
+            // 随机选择要渲染数字的方块
             const pos = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
+            // 随机生成要渲染的数字
             tiles[pos] = Math.random() < 0.8 ? 2 : 4;
-
             actions.push({ 'type': 'create', 'index': pos, 'value': tiles[pos] });
-        }, move: function (dir) {
+        },
+        move: function (dir) {
             let rowStart, rowStep, nextStep;
             actions = [];
             if (dir === 'up') {
-                rowStart = 0;
-                rowStep = 1;
-                nextStep = size;
+                rowStart = 0; // 移动开始的初始index
+                rowStep = 1; // 开始下一列或行需要加上的值
+                nextStep = size; // 找到相邻的方块需要加上的值
             } else if (dir === 'left') {
                 rowStart = 0;
                 rowStep = size;
@@ -92,9 +96,11 @@ const gmFactory = function (size) {
                 nextStep = -1;
             }
             moves++;
-            const end = tiles.length - 1 - rowStart;
-            let megnet = rowStart;
+            // 下面的注释中，以move的方向为前
+            const end = tiles.length - 1 - rowStart; // 结束的index
+            let megnet = rowStart; // 首先将开始值赋值给前一个值
 
+            // 把之前局面的都存起来
             let his = [];
             for (let i = 0; i < tiles.length; i++) {
                 his[i] = tiles[i];
@@ -103,16 +109,19 @@ const gmFactory = function (size) {
 
             let currentRow = 0;
             while ((end != 0 && megnet < end) || (end == 0 && megnet > 0) && currentRow < size) {
-
                 let floatTile = megnet;
+                console.log(" ");
+                console.log("floatTile", floatTile);
                 while (!this.isAtEdge(dir, megnet)) {
 
                     floatTile = floatTile + nextStep;
                     const floatTileValue = tiles[floatTile];
                     const megnetTileValue = tiles[megnet];
+                    console.log(floatTile, megnet);
 
                     const swallowed = this.swallowUp(floatTile, megnet);
                     if (swallowed || (!swallowed && floatTileValue != 0 && megnetTileValue != 0)) {
+                        console.log(66666);
                         megnet = megnet + nextStep;
                         floatTile = megnet;
                         continue;
@@ -128,9 +137,13 @@ const gmFactory = function (size) {
                 megnet = rowStart;
             }
             this.randomVal();
-        }
-        , isAtEdge: function (dir, tileIndex) {
+        },
+        // 判断是不是在移动方向相反的第一行，比如向下移动，是否在第一行; 循环时用来判断是不是到一行或一列的头了，需要转下一行
+        isAtEdge: function (dir, tileIndex) {
+            // console.log(tileIndex);
+            // 在 左右边 的index % size以后的值
             let leftMargin = 0, rightMargin = size - 1;
+            // 第一行最后一个位置和最后一行第一个位置的index
             const maxTopRowValue = size - 1, minBottomRowValue = tiles.length - size;
             switch (dir) {
                 case 'down':
@@ -142,58 +155,70 @@ const gmFactory = function (size) {
                 case 'right':
                     return tileIndex % size == leftMargin;
             }
-        }
-        , swallowUp: function (floatTile, megnet) {
+        },
+        swallowUp: function (floatTile, megnet) {
             const v1 = tiles[floatTile], v2 = tiles[megnet];
+            console.log("value", v1, v2);
 
+            // 如果后一个值为0
             if (v1 == 0) return false;
-
+            // 两个值相等或者前一个值为0
             if (v1 == v2 || v2 == 0) {
                 const v = v1 + v2;
+                // 前一个值变为两者之和
                 tiles[megnet] = v;
+                // 后一个值归零
                 tiles[floatTile] = 0;
 
                 actions.push({
                     'type': 'move', 'from': { 'index': floatTile, 'value': v1 }, 'to': { 'index': megnet, 'value': v }
                 });
 
-                max = Math.max(max, v);
-                if (max == winScores) {
-                    this.init(size);
-                    this.fireEvent("end", this);
-                }
+                // max = Math.max(max, v);
+                // if (max == winScores) {
+                //     this.init(size);
+                //     this.fireEvent("end", this);
+                // }
 
+                // 不
                 return v2 != 0;
             }
 
             return false;
-        }, back: function () {
+        },
+        back: function () {
             if (histories.length < 1) return;
             tiles = histories.pop();
             this.render();
-        }, setRenderer: function (renderer) {
+        }, 
+        // 设置控制台Render
+        setRenderer: function (renderer) {
             this.renderer = renderer;
             renderer.init(this);
-        }, render: function () {
+        }, 
+        // 控制台Render打印游戏和底部action文字
+        render: function () {
             this.renderer.render(this.tiles, actions);
-        }, on: function (eventName, handler, scope) {
-            if (!events[eventName]) return;
-            let handlers = events[eventName];
-            handlers.push({ 'fn': handler, 'scope': scope });
-        }, un: function (eventName, handler, scope) {
-            if (!events[eventName]) return;
-            let handlers = events[eventName];
-            if (handlers.length < 1) return;
+        },
+        // on: function (eventName, handler, scope) {
+        //     if (!events[eventName]) return;
+        //     let handlers = events[eventName];
+        //     handlers.push({ 'fn': handler, 'scope': scope });
+        // },
+        // un: function (eventName, handler, scope) {
+        //     if (!events[eventName]) return;
+        //     let handlers = events[eventName];
+        //     if (handlers.length < 1) return;
 
-            for (let i = 0; i < handlers.length; i++) {
-                const h = handlers[i];
-                if (h.fn == handler && h.scope == scope) {
-                    handlers.splice(i, 1);
-                    break;
-                }
-            }
-        }
-        , fireEvent: function () {
+        //     for (let i = 0; i < handlers.length; i++) {
+        //         const h = handlers[i];
+        //         if (h.fn == handler && h.scope == scope) {
+        //             handlers.splice(i, 1);
+        //             break;
+        //         }
+        //     }
+        // },
+        fireEvent: function () {
             const eventName = arguments[0];
             const args = arguments.slice(1);
             const handlers = events[eventName];
@@ -233,7 +258,7 @@ consoleRender.prototype.map = {
 consoleRender.prototype.game = null;
 
 consoleRender.prototype.colorPalette = function (keys) {
-    const colors = ['#eee4da', '#ede0c8', '#f2b179', '#f59563', '#f67c5f', '#f65e3b', '#edcf72', '#edcc61', '#edc850', '#edc53f', '#edc22e'];
+    const colors = ['#eee4da', '#eee1c9', '#f3b27a', '#f69664', '#f67c5f', '#f65e3b', '#edcf72', '#edcc61', '#edc850', '#edc53f', '#edc22e'];
     let r = {};
     const _keys = keys.split(",");
     const length = _keys.length;
@@ -252,9 +277,9 @@ consoleRender.prototype.pad = function (str, length) {
 };
 
 consoleRender.prototype.render = function (tiles, actions, notClear) {
-    if (!notClear) console.clear();
+    // if (!notClear) console.clear();
     console.log(' ');
-    const size = Math.sqrt(tiles.length); // 开方获取游戏面积大小: 4x4
+    const size = Math.sqrt(tiles.length); // 开方获取游戏面积大小
     const colors = this.colorPalette("2,4,8,16,32,64,128,256,512,1024,2048"); // 为不同数字匹配相应颜色
     const baseStyle = 'text-align:center;width:100px;display:block;background-color:#ccc;padding:4px 7px;line-height:1.4;color:#000;';
     // 遍历游戏初始值
@@ -295,6 +320,7 @@ consoleRender.prototype.keydownHandler = function (e) {
     if (!this.started) {
         if (keynum === 13) {
             this.started = true;
+            // 第一次打印
             this.game.render();
         }
         return;
@@ -338,13 +364,13 @@ consoleRender.prototype.init = function (game) {
 
 };
 
-// (() => {
+(() => {
 
-//     if (!console) return;
+    if (!console) return;
 
-//     const gm2048 = new gmFactory(4);
-//     const chromerenderer = new consoleRender();
-//     gm2048.setRenderer(chromerenderer);
-
-//     chromerenderer.render(gm2048.tiles, gm2048.actions, true);
-// })();
+    const gm2048 = new gmFactory(4);
+    const chromerenderer = new consoleRender();
+    gm2048.setRenderer(chromerenderer);
+    // 第一次打印
+    chromerenderer.render(gm2048.tiles, gm2048.actions, true);
+})();

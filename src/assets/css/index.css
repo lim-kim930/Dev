@@ -1,26 +1,16 @@
-@font-face {
-    font-family: 'icomoon';
-    src:  url('fonts/icomoon.eot?m4p742');
-    src:  url('fonts/icomoon.eot?m4p742#iefix') format('embedded-opentype'),
-      url('fonts/icomoon.ttf?m4p742') format('truetype'),
-      url('fonts/icomoon.woff?m4p742') format('woff'),
-      url('fonts/icomoon.svg?m4p742#icomoon') format('svg');
-    font-weight: normal;
-    font-style: normal;
-    font-display: block;
-}
 @keyframes rotate{
     from{transform: rotate(0deg)}
     to{transform : rotate(-359deg)}
 }
-
-.animate {
+img.animate {
     display: inline-block;
+    width: 18px;
+    height: 18px;
+    content: url("../images/loading.svg");
+    text-align: center;
+    margin-bottom: -3px;
     transform: rotate(360deg);
     animation: rotate 1s linear infinite;
-    font-family: icomoon;
-    width: 16px;
-    height: 16px;
 }
 h3 {
     font-size: 18px;
@@ -32,7 +22,7 @@ h4 span {
 #greeting {
     color: #000;
 }
-img {
+.img img {
     display: block;
     box-shadow: 0px 0px 10px 2px #ccc;
     border-radius: 10px;

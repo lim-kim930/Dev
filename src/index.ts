@@ -1,8 +1,10 @@
-// import { gmFactory, consoleRender } from "./2048"
+import { Game2048, ConsoleRender } from "./2048"
 import $ from "jquery"
+// import loader from "./Amap"
+import "./assets/css/index.css"
 
 type ImgSrc = null | string
-type OperationType = "txt" | "img"
+type OperationType = "txt" | "img" | "imgs"
 type ImageNodeId = "#imgNode1" | "#imgNode2"
 
 let nowTimeStamp: number = 0;
@@ -16,6 +18,12 @@ const imgLabel = $("[id^='imgLabel']");
 // 锁
 let imgLoadingFlag: boolean = false;
 let txtLoadingFlag: boolean = false;
+
+// declare global {  //设置全局属性
+//     interface Window {  //window对象属性
+//         _AMapSecurityConfig: { securityJsCode: string };   //加入对象
+//     }
+// }
 
 (() => {
     // 请求信息
@@ -40,15 +48,17 @@ let txtLoadingFlag: boolean = false;
     }).catch(err => {
         console.error(err);
     });
-    // // 2048开始
-    // if (!console) return;
-
-    // const gm2048 = gmFactory(4);
+    // 2048开始
+    if (!console) return;
+    const consoleRender = new ConsoleRender()
+    // consoleRender.init()
+    // const gm2048 = new Game2048(4, 4098, true);
     // const chromerenderer = new consoleRender();
     // gm2048.setRenderer(chromerenderer);
 
     // chromerenderer.render(gm2048.tiles, gm2048.actions, true);
 })();
+
 // 时间渲染
 function timeRender() {
     const time = new Date(<number>nowTimeStamp);
@@ -78,7 +88,7 @@ function timeRender() {
                 break;
         }
         // 小时改变为0时日期改变
-        if (!lastSecondTime.Hour || nowTime.Hour === 0) {
+        if (lastSecondTime.Hour === -1 || nowTime.Hour === 0) {
             $("#date").text(time.toDateString() + " - ");
         }
     }
@@ -159,46 +169,7 @@ function mapRender(response: any) {
     $('#ip').text(response.IP + " - " + isp);
     if (AmapData.country !== "中国")
         return;
-    $("#container").attr("hidden", "false");
-    // AMapLoader.load({
-    //     "key": "3257a21ceceb0bcd498b8288f0f10cfa",
-    //     "version": "2.0",
-    //     "plugins": [
-    //         'AMap.ToolBar',
-    //         'AMap.Scale',
-    //         'AMap.ControlBar'
-    //     ], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
-    // }).then((AMap) => {
-    //     let map = new AMap.Map('container', {
-    //         zoom: 8,//级别
-    //         center: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]],//中心点坐标
-    //         viewMode: '3D',//使用3D视图
-    //         terrain: true
-    //     });
-    //     let infoWindow = new AMap.InfoWindow({
-    //         anchor: 'top-left',
-    //         content: '猜你在这附近!',
-    //     });
-    //     infoWindow.open(map, [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]);
-    //     let marker = new AMap.Marker({
-    //         position: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]]//位置
-    //     });
-    //     map.add(marker);//添加到地图
-    //     map.addControl(new AMap.ToolBar());
-    //     map.addControl(new AMap.Scale());
-    //     map.addControl(new AMap.ControlBar());
-    // }).catch((e) => {
-    //     console.error(e);  //加载错误提示
-    // });
-}
-// 渲染加载动画和提示
-function startLoading(type: OperationType, content?: string) {
-    if (type === "txt")
-        $("#txtArea").html(content + "<span class ='animate'></span>");
-    else {
-        imgLabel.html("加载中...<span class ='animate'></span>");
-        $("[id^='imgNode']").attr("src", null);
-    }
+    // $("#container").attr("hidden", "false");
 }
 // 图片渲染，传入img标签id和图片地址，算出适应高度并渲染
 function imgRender(id: ImageNodeId, src: string) {
@@ -216,6 +187,18 @@ function imgRender(id: ImageNodeId, src: string) {
             reject(err);
         };
     });
+}
+// 渲染加载动画和提示
+function startLoading(type: OperationType, content: string, index?: number) {
+    const loadingHtml = content + "<img src='./loading.svg' class='animate'></img>";
+    if (type === "txt")
+        $("#txtArea").html(loadingHtml);
+    else if (type === "img"){
+        $("#imgLabel" + index).html(loadingHtml);
+    }
+    else {
+        imgLabel.html(loadingHtml);
+    }
 }
 // 图片显示区和imgSrc重置
 function resetImgArea() {
@@ -242,7 +225,7 @@ function uplaodTxt(data: string) {
 }
 // 人脸识别请求函数
 function detectAjax(imgBase64: string, imgWidth: number, index: number) {
-    $("#imgLabel" + index).html("正在检测人脸...<span class ='animate'></span>");
+    startLoading("img", "正在检测人脸...", index);
     $.ajax({
         type: 'post',
         url: 'https://api.limkim.xyz/faceDetect',
@@ -266,8 +249,8 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
         const attributes = parmas.attributes;
         const glass = attributes.glass.value === "None" ? "未佩戴" : (attributes.glass.value === "Normal" ? "普通眼镜" : "墨镜");
         const gender = attributes.gender.value === "Male" ? "男" : "女";
-        const emotion = attributes.emotion;
-        let emo = "";
+        const emotions = attributes.emotion;
+        let emotion = "";
         const translation: {[key: string]: string} = {
             "anger": "愤怒",
             "disgust": "厌恶",
@@ -277,23 +260,24 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
             "sadness": "伤心",
             "surprise": "惊讶"
         }
-        Object.keys(emotion).forEach(key => {
-            if (emotion[key] >= 40)
-                emo = translation[key];
+        Object.keys(emotions).forEach(key => {
+            if (emotions[key] >= 40)
+                emotion = translation[key];
         })
-        $("#imgLabel" + index).html("<div class='info'>性别: " + gender + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emo + "<br>眼镜: " + glass + "<br>颜值打分(男性): " + parseInt(attributes.beauty.male_score) + " 分<br>颜值打分(女性): " + parseInt(attributes.beauty.female_score) + " 分</div>");
+        $("#imgLabel" + index).html("<div class='info'>性别: " + gender + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emotion + "<br>眼镜: " + glass + "<br>颜值打分(男性): " + parseInt(attributes.beauty.male_score) + " 分<br>颜值打分(女性): " + parseInt(attributes.beauty.female_score) + " 分</div>");
         imgLoadingFlag = false;
     }).catch((err) => {
+        console.error(err);
         $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
         imgLoadingFlag = false;
     });
 }
 // 清空文本框
-$("#clearInputArea").click(() => {
+$("#clearInputArea").on("click", () => {
     $("#inputArea").val("");
 });
 // 上传输入区文本内容
-$("#uploadTxt").click(() => {
+$("#uploadTxt").on("click", () => {
     if (txtLoadingFlag)
         return false;
     txtLoadingFlag = true;
@@ -308,7 +292,7 @@ $("#uploadTxt").click(() => {
     uplaodTxt(data);
 });
 // 读文本
-$("#readTxt").click(() => {
+$("#readTxt").on("click", () => {
     if (txtLoadingFlag)
         return false;
     txtLoadingFlag = true;
@@ -326,17 +310,17 @@ $("#readTxt").click(() => {
     });
 });
 // 清空图片显示区
-$("#clearImgArea").click(() => {
+$("#clearImgArea").on("click", () => {
     imgLabel.text("暂无内容📭");
     resetImgArea();
 });
 // 读取图片src
-$("#readImage").click(() => {
+$("#readImage").on("click", () => {
     if (imgLoadingFlag)
         return false;
     imgLoadingFlag = true;
     resetImgArea();
-    startLoading("img");
+    startLoading("imgs", "加载中...");
     $.ajax({
         type: 'get',
         url: 'https://api.limkim.xyz/test/readImage'
@@ -367,11 +351,12 @@ $("#readImage").click(() => {
     });
 });
 // 删除云端图片
-$("#deleteImage").click(() => {
+$("#deleteImage").on("click", () => {
     if (imgLoadingFlag)
         return false;
     imgLoadingFlag = true;
     startLoading("img", "删除中...");
+    $("[id^='imgNode']").attr("src", null);
     $.ajax({
         type: 'get',
         url: 'https://api.limkim.xyz/test/deleteImage'
@@ -387,19 +372,19 @@ $("#deleteImage").click(() => {
     });
 });
 // 用div触发input
-$("[id^='inputDiv']").click((e) => {
+$("[id^='inputDiv']").on("click", (e) => {
     const index = (e.target.innerText === "上传图片1" ? 1 : 2);
     $("#fileInput" + index).trigger("click");
 })
 // 用户上传图片文件后，获取base64编码并上传
-$("[id^='fileInput']").change((e) => {
+$("[id^='fileInput']").on("change", (e) => {
     if (imgLoadingFlag)
         return false;
     imgLoadingFlag = true;
     const index = (e.target.id === "fileInput1" ? 1 : 2);
     $("#container" + index).html("<div id='pointer" + index + "'></div><img src='' id='imgNode" + index + "'>");
     $("#imgNode" + index).attr("src", null);
-    $("imgLabrl" + index).text("读取中...<span class ='animate'></span>");
+    startLoading("img", "读取中...", index);
     const fileElement = document.getElementById('fileInput' + index) as HTMLInputElement;
     const files = fileElement.files as FileList
     const file = files[0]
@@ -413,7 +398,7 @@ $("[id^='fileInput']").change((e) => {
     };
     reader.onload = () => {
         base64Url = reader.result as string;
-        $("#imgLabel" + index).html("提交中...<span class ='animate'></span>");
+        startLoading("img", "提交中...", index);
         $.ajax({
             type: 'post',
             url: 'https://api.limkim.xyz/test/uploadImage',
@@ -440,7 +425,7 @@ $("[id^='fileInput']").change((e) => {
     };
 });
 // 手动检测人脸
-$("[id^='recognizeImg']").click((e) => {
+$("[id^='recognizeImg']").on("click", (e) => {
     if (imgLoadingFlag)
         return false;
     const index = (e.target.id === "recognizeImg1" ? 1 : 2);
@@ -461,7 +446,7 @@ $("[id^='recognizeImg']").click((e) => {
     }
 });
 // 对比照片人脸匹配度
-$("#compareImg").click(() => {
+$("#compareImg").on("click", () => {
     if (imgLoadingFlag)
         return false;
     if ($("#imgLabel1").text() === "暂无内容📭" || !imgSrc1)
@@ -471,7 +456,7 @@ $("#compareImg").click(() => {
     if ($("#imgLabel1").text() === "暂无图片1信息📭" || $("#imgLabel2").text() === "暂无图片2信息📭")
         return;
     imgLoadingFlag = true;
-    $("[id^='imgLabel']").html("上传比对中...<span class ='animate'></span>")
+    startLoading("imgs","上传比对中...");
     $.ajax({
         type: 'post',
         url: 'https://api-cn.faceplusplus.com/facepp/v3/compare',
