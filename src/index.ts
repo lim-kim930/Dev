@@ -1,4 +1,4 @@
-import { Game2048, ConsoleRender } from "./2048"
+import { Game2048, ConsoleRenderer } from "./2048"
 import $ from "jquery"
 // import loader from "./Amap"
 import "./assets/css/index.css"
@@ -48,15 +48,12 @@ let txtLoadingFlag: boolean = false;
     }).catch(err => {
         console.error(err);
     });
+    
     // 2048开始
-    if (!console) return;
-    const consoleRender = new ConsoleRender()
-    // consoleRender.init()
-    // const gm2048 = new Game2048(4, 4098, true);
-    // const chromerenderer = new consoleRender();
-    // gm2048.setRenderer(chromerenderer);
+    // if (!console) return;
+    // const consoleRender = new ConsoleRenderer();
+    // const gm2048 = new Game2048(consoleRender);
 
-    // chromerenderer.render(gm2048.tiles, gm2048.actions, true);
 })();
 
 // 时间渲染

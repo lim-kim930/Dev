@@ -3,8 +3,7 @@
  * If you find a problem with this code or have some suggestions, please contact us by email. E-mail: 1625753207lim@gmail.com.
  */
 
-// TODO: 增加游戏结束判断
-// TODO: 保存游戏进度，每一分钟自动保存
+
 const gmFactory = function (size) {
 
     let moves; // 目前为止总共的步数
