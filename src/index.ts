@@ -1,6 +1,6 @@
 import { Game2048, ConsoleRenderer } from "./2048"
 import $ from "jquery"
-// import loader from "./Amap"
+import loader from "./Amap"
 import "./assets/css/index.css"
 
 type ImgSrc = null | string

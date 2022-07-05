@@ -1,5 +1,5 @@
 window._AMapSecurityConfig = { securityJsCode: '2d6c385974a707d562416a0d4becae69' };
-const loader = (): void => {
+const loader = () => {
     return AMapLoader.load({
         "key": "3257a21ceceb0bcd498b8288f0f10cfa",
         "version": "2.0",
