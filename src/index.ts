@@ -1,7 +1,8 @@
 import { Game2048, ConsoleRenderer } from "./2048"
 import $ from "jquery"
-import loader from "./Amap"
+import loadder from "./Amap/index.js"
 import "./assets/css/index.css"
+
 
 type ImgSrc = null | string
 type OperationType = "txt" | "img" | "imgs"
@@ -93,7 +94,7 @@ function timeRender() {
     nowTimeStamp += 1000;
 }
 // 地图和IP渲染
-function mapRender(response: any) {
+async function mapRender(response: any) {
     const AmapData = response.AmapData;
     const czData = response.czData;
     let city = "";
@@ -166,7 +167,8 @@ function mapRender(response: any) {
     $('#ip').text(response.IP + " - " + isp);
     if (AmapData.country !== "中国")
         return;
-    // $("#container").attr("hidden", "false");
+    $("#container").show();
+    loadder(AmapData)
 }
 // 图片渲染，传入img标签id和图片地址，算出适应高度并渲染
 function imgRender(id: ImageNodeId, src: string) {
