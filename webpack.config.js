@@ -1,15 +1,23 @@
 const path = require("path");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CSSMinimizerPlugin = require('css-minimizer-webpack-plugin')
+const CSSMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
-    entry: "./src/index.ts",
+    entry: {
+        index: "./src/index.ts",
+        redirect: "./src/redirect.ts"
+    },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: "./js/bundle.js"
+        filename: "./js/[name].js"
     },
-    mode: "production",
+    mode: process.env.NODE_ENV ? "development" : "production",
+    // devtool: 'eval-source-map',
+    devtool: 'source-map',
     module: {
         rules: [
             {
@@ -17,34 +25,46 @@ module.exports = {
                 use: "ts-loader",
                 exclude: /node-moudles/
             },
-            // {
-            //     test:/\.(eot|ttf|svg|woff)$/,
-            //     exclude: /node-moudles/,
-            //     use:{
-            //         loader: "file-loader",
-            //         options: {
-            //             name: "./[name].[ext]"
-            //         }
-            //     }
-            // },
             {
-				test:/\.css$/,
-				use:[MiniCssExtractPlugin.loader, "css-loader"],
+                test: /\.css$/,
+                use: [MiniCssExtractPlugin.loader, {
+                    loader: "css-loader",
+                    options: {
+                        url: false
+                    }
+                }],
                 exclude: /node-moudles/
-			}
+            }
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(),
         new HTMLWebpackPlugin({
-            // title: "测试",
-            template: "./public/index.html"
+            template: "./public/index.html",
+            chunks: ["index"]
+        }),
+        new HTMLWebpackPlugin({
+            filename: 'redirect.html',
+            template: './public/redirect.html',
+            inject: "body",
+            chunks: ["redirect"]
         }),
         new MiniCssExtractPlugin({
             filename: "css/[name].css"
         }),
-        new CSSMinimizerPlugin()
+        new CSSMinimizerPlugin(),
+        new NodePolyfillPlugin(),
+        new CopyPlugin({
+            patterns: [
+                // { from: "public/redirect.html", to: "redirect.html" },
+                { from: "src/assets/images/expand.svg", to: "images/expand.svg" },
+                { from: "src/assets/images/loading.svg", to: "images/loading.svg" }
+            ],
+        })
     ],
     resolve: {
-        extensions: [".ts", "..."]
-    }
+        extensions: [".ts", "..."],
+        fallback: { "crypto": require.resolve("crypto-browserify") }
+    },
+
 }

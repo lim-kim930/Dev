@@ -3,7 +3,6 @@ import $ from "jquery"
 import loadder from "./Amap/index.js"
 import "./assets/css/index.css"
 
-
 type ImgSrc = null | string
 type OperationType = "txt" | "img" | "imgs"
 type ImageNodeId = "#imgNode1" | "#imgNode2"
@@ -20,6 +19,7 @@ const imgLabel = $("[id^='imgLabel']");
 let imgLoadingFlag: boolean = false;
 let txtLoadingFlag: boolean = false;
 
+let amapData: any = {};
 // declare global {  //设置全局属性
 //     interface Window {  //window对象属性
 //         _AMapSecurityConfig: { securityJsCode: string };   //加入对象
@@ -49,7 +49,7 @@ let txtLoadingFlag: boolean = false;
     }).catch(err => {
         console.error(err);
     });
-    
+
     // 2048开始
     // if (!console) return;
     // const consoleRender = new ConsoleRenderer();
@@ -167,8 +167,8 @@ async function mapRender(response: any) {
     $('#ip').text(response.IP + " - " + isp);
     if (AmapData.country !== "中国")
         return;
-    $("#container").show();
-    loadder(AmapData)
+    amapData = AmapData;
+    $("#mapSwitch").show();
 }
 // 图片渲染，传入img标签id和图片地址，算出适应高度并渲染
 function imgRender(id: ImageNodeId, src: string) {
@@ -189,10 +189,10 @@ function imgRender(id: ImageNodeId, src: string) {
 }
 // 渲染加载动画和提示
 function startLoading(type: OperationType, content: string, index?: number) {
-    const loadingHtml = content + "<img src='./loading.svg' class='animate'></img>";
+    const loadingHtml = content + "<img class='animate'></img>";
     if (type === "txt")
         $("#txtArea").html(loadingHtml);
-    else if (type === "img"){
+    else if (type === "img") {
         $("#imgLabel" + index).html(loadingHtml);
     }
     else {
@@ -250,7 +250,7 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
         const gender = attributes.gender.value === "Male" ? "男" : "女";
         const emotions = attributes.emotion;
         let emotion = "";
-        const translation: {[key: string]: string} = {
+        const translation: { [key: string]: string } = {
             "anger": "愤怒",
             "disgust": "厌恶",
             "fear": "恐惧",
@@ -282,10 +282,14 @@ $("#uploadTxt").on("click", () => {
     txtLoadingFlag = true;
     const data = $("#inputArea").val() as string;
     if (data === "" || (data !== "" && $.trim(data) === "")) {
-        if (confirm("输入内容为空,是否继续提交？")) {
+        layui.layer.confirm("输入内容为空,是否继续提交?",{
+            icon: 3,
+            title: "提示"
+        },(index)=>{
             $("#text").val("");
+            layui.layer.close(index);
             return uplaodTxt("");
-        }
+        })
         return txtLoadingFlag = false;;
     }
     uplaodTxt(data);
@@ -455,7 +459,7 @@ $("#compareImg").on("click", () => {
     if ($("#imgLabel1").text() === "暂无图片1信息📭" || $("#imgLabel2").text() === "暂无图片2信息📭")
         return;
     imgLoadingFlag = true;
-    startLoading("imgs","上传比对中...");
+    startLoading("imgs", "上传比对中...");
     $.ajax({
         type: 'post',
         url: 'https://api-cn.faceplusplus.com/facepp/v3/compare',
@@ -486,3 +490,51 @@ $("#compareImg").on("click", () => {
         $("[id^='imgLabel']").text("图片1或图片2体积太大啦,换张照片试试吧😜");
     });
 });
+// 地图手动控制展开
+$("#mapSwitch").on("click", () => {
+    if (!amapData.country || amapData.country !== "中国") {
+        return;
+    }
+    const status = $("#container")[0].style.opacity;
+    if (status === "1") {
+        $("#container").css("height", "1px").css("z-index", -999).css("opacity", 0).css("margin-top", 0);
+        $("#mapSwitch img").removeClass("rotate180");
+        $("#mapSwitch span span").text("展开地图");
+    }
+    else if (status === "0") {
+        $("#container").css("height", "calc(100vw - 16px)").css("z-index", "").css("opacity", 1).css("margin-top", "10px");
+        $("#mapSwitch img").addClass("rotate180");
+        $("#mapSwitch span span").text("收起地图");
+    }
+    else {
+        $("#container").show();
+        $("#container").css("opacity", 1);
+        loadder(amapData);
+        $("#mapSwitch span span").text("收起地图");
+        $("#mapSwitch img").addClass("rotate180");
+    }
+})
+// 静态文件管理身份验证
+$("#staticSwitch").on("click", () => {
+    const value = $("#inputArea").val() as string | undefined;
+    const reg = /^[0-9]{6}$/
+    if(!value || !reg.test(value)){
+        layui.layer.msg("别闹我滴宝~", {
+            icon: 5
+        });
+        return;
+    }
+    $.ajax({
+        type: 'post',
+        url: 'http://localhost:3001/static/verfiy',
+        data: { code: value }
+    }).then(({data}) => {
+        if(data.token){
+            localStorage.setItem("static_token", data.token);
+        }
+    }).catch(()=>{
+        layui.layer.msg("你这码也不对呀~", {
+            icon: 5
+        });
+    })
+})
