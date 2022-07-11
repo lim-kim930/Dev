@@ -526,11 +526,14 @@ $("#staticSwitch").on("click", () => {
     }
     $.ajax({
         type: 'post',
-        url: 'http://localhost:3001/static/verfiy',
+        url: 'http://localhost:3001/static/verify',
         data: { code: value }
     }).then(({data}) => {
         if(data.token){
             localStorage.setItem("static_token", data.token);
+            layui.layer.msg("登录成功~", {
+                icon: 1
+            });
         }
     }).catch(()=>{
         layui.layer.msg("你这码也不对呀~", {
