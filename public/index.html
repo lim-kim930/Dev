@@ -18,43 +18,68 @@
     <h4>你的IP为: <span id="ip"><img class="animate"></img></span></h4>
     <h4>当前时间: <span id="date"></span><span id="time"></span><img class="animate"></img></h4>
     <hr>
-    <h3 id="txtArea">暂无内容📭</h3>
-    <textarea cols="34" rows="7" id="inputArea" placeholder="随便写点啥吧🎨(试试XSS攻击!)"></textarea>
-    <br>
-    <button id="readTxt" class="on">查看云端文本</button>
-    <button id="clearInputArea">清空输入区</button>
-    <br>
-    <button id="uploadTxt">上传输入区</button>
-    <button id="staticSwitch">验证身份</button>
-    <hr>
-    <div class="img" id="container1">
-        <div id="pointer1"></div>
-        <img src="" alt="" id="imgNode1">
-    </div>
-    <h3 id="imgLabel1">暂无内容📭</h3>
+    <!-- dev模块区域 -->
+    <div id="devContainer">
+        <h3 id="txtArea">暂无内容📭</h3>
+        <textarea cols="34" rows="7" id="inputArea" placeholder="随便写点啥吧🎨(试试XSS攻击!)"></textarea>
+        <br>
+        <button id="readTxt" class="on">查看云端文本</button>
+        <button id="clearInputArea">清空输入区</button>
+        <br>
+        <button id="uploadTxt">上传输入区</button>
+        <button id="staticAuth" hidden>验证身份</button>
+        <button id="staticSwitch" hidden>资源管理</button>
+        <hr>
+        <div class="img" id="container1">
+            <div id="pointer1"></div>
+            <img src="" alt="" id="imgNode1">
+        </div>
+        <h3 id="imgLabel1">暂无内容📭</h3>
 
-    <div class="img" id="container2">
-        <div id="pointer2"></div>
-        <img src="" alt="" id="imgNode2">
+        <div class="img" id="container2">
+            <div id="pointer2"></div>
+            <img src="" alt="" id="imgNode2">
+        </div>
+        <h3 id="imgLabel2">暂无内容📭</h3>
+        <button id="readImage">查看云端图片</button>
+        <button id="clearImgArea">清空显示区</button>
+        <br>
+        <button id="inputDiv1" class="on">上传图片1</button>
+        <button id="inputDiv2">上传图片2</button>
+        <button id="deleteImage">删除云端图片</button>
+        <input type="file" id="fileInput1" accept="image/*" />
+        <input type="file" id="fileInput2" accept="image/*" />
+        <br>
+        <button id="recognizeImg1">识别图片1</button>
+        <button id="recognizeImg2">识别图片2</button>
+        <button id="compareImg">对比图片</button>
+        <hr>
+        <button id="mapSwitch" class="switch" hidden>
+            <span><span>打开地图</span><img src="" alt=""></span>
+        </button>
+        <div id="mapContainer" hidden></div>
     </div>
-    <h3 id="imgLabel2">暂无内容📭</h3>
-    <button id="readImage">查看云端图片</button>
-    <button id="clearImgArea">清空显示区</button>
-    <br>
-    <button id="inputDiv1" class="on">上传图片1</button>
-    <button id="inputDiv2">上传图片2</button>
-    <button id="deleteImage">删除云端图片</button>
-    <input type="file" id="fileInput1" accept="image/*" />
-    <input type="file" id="fileInput2" accept="image/*" />
-    <br>
-    <button id="recognizeImg1">识别图片1</button>
-    <button id="recognizeImg2">识别图片2</button>
-    <button id="compareImg">对比图片</button>
-    <hr>
-    <button id="mapSwitch" class="switch" hidden>
-        <span><span>打开地图</span><img src="" alt=""></span>
-    </button>
-    <div id="container" hidden></div>
+    <!-- 静态资源管理模块 -->
+    <div id="manageContainer" hidden>
+        <h1>
+            <button id="backDev" type="button" class="layui-btn layui-btn-sm">
+                <i class="layui-icon layui-icon-left"></i>
+            </button>
+            静态资源管理
+        </h1>
+        <hr>
+        <button type="button" class="layui-btn" id="uploadBtn">
+            <i class="layui-icon">&#xe67c;</i>上传文件
+        </button>
+        <hr>
+        <h2>所有文件</h2>
+        <table lay-even lay-skin="line" lay-size="lg" id="fileTable"></table>
+    </div>
+    <script type="text/html" id="toolEventDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="edit">下载</a>
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="edit">删除</a>
+    </script>
     <script type="text/javascript">
         window._AMapSecurityConfig = { securityJsCode: '2d6c385974a707d562416a0d4becae69' };
     </script>

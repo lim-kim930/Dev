@@ -7,6 +7,9 @@ type ImgSrc = null | string
 type OperationType = "txt" | "img" | "imgs"
 type ImageNodeId = "#imgNode1" | "#imgNode2"
 
+const baseUrl = "https://api.limkim.xyz/";
+const infoUrl = "http://localhost:3001/";
+
 let nowTimeStamp: number = 0;
 let lastSecondTime = {
     "Hour": -1,
@@ -18,6 +21,8 @@ const imgLabel = $("[id^='imgLabel']");
 // 锁
 let imgLoadingFlag: boolean = false;
 let txtLoadingFlag: boolean = false;
+// 登录状态
+let atuhorized: boolean = localStorage.getItem("static_user_token") !== null;
 
 let amapData: any = {};
 // declare global {  //设置全局属性
@@ -25,14 +30,15 @@ let amapData: any = {};
 //         _AMapSecurityConfig: { securityJsCode: string };   //加入对象
 //     }
 // }
+let fileDataTable: Layui.TableRendered;
 
 (() => {
     // 请求信息
     $.ajax({
         type: 'get',
-        url: 'https://api.limkim.xyz/getSysTime'
+        url: infoUrl + 'info/sysTime'
     }).then((response) => {
-        nowTimeStamp = response.Systime2 as number;
+        nowTimeStamp = response.data as number;
         $(".animate").hide();
         timeRender();
         setInterval(() => {
@@ -43,13 +49,21 @@ let amapData: any = {};
     });
     $.ajax({
         type: 'get',
-        url: 'https://api.limkim.xyz/ipconfig'
+        url: baseUrl + 'ipconfig'
     }).then(response => {
         mapRender(response.data);
     }).catch(err => {
         console.error(err);
     });
 
+    if (atuhorized) {
+        $("#staticSwitch").show();
+        manageInit();
+        $("#devContainer").hide();
+        $("#manageContainer").show();
+    } else {
+        $("#staticAuth").show();
+    }
     // 2048开始
     // if (!console) return;
     // const consoleRender = new ConsoleRenderer();
@@ -211,7 +225,7 @@ function uplaodTxt(data: string) {
     startLoading("txt", "提交中...");
     $.ajax({
         type: 'post',
-        url: 'https://api.limkim.xyz/test/write',
+        url: baseUrl + 'test/write',
         data: { data }
     }).then((response) => {
         if (response.success === 20001)
@@ -227,8 +241,8 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
     startLoading("img", "正在检测人脸...", index);
     $.ajax({
         type: 'post',
-        url: 'https://api.limkim.xyz/faceDetect',
-        data: { imgBase64 }
+        url: infoUrl + 'info/faceDetect',
+        data: { imgBase64, return_landmark: 2, return_attributes: "gender,age,eyestatus,mouthstatus,emotion,beauty" }
     }).then((response) => {
         response = response.data;
         if (response.faces.length === 0) {
@@ -271,6 +285,53 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
         imgLoadingFlag = false;
     });
 }
+function manageInit() {
+    $.ajax(infoUrl + "static/allFilesInfo", {
+        headers: { "Authorization": localStorage.getItem("static_user_token") }
+    }).then(({ data }) => {
+        fileDataTable = layui.table.render({
+            elem: '#fileTable',
+            height: 312,
+            page: true,
+            data,
+            cols: [[ //表头
+                { field: 'fileName', title: '文件名', sort: true },
+                { field: 'size', title: '大小(Byte)', width: 180, sort: true },
+                { field: 'fileType', title: '文件类型', width: 250, sort: true },
+                { field: 'fileOriginName', title: '文件原名', width: 280 },
+                { field: 'uploadTime', title: '上传时间', width: 280, sort: true },
+                { title: '操作', width: 280, templet: '#toolEventDemo' }
+            ]]
+        });
+    }).catch(()=>{
+
+    });
+    layui.upload.render({
+        elem: '#uploadBtn',
+        auto: false,
+        multiple: true,
+        accept: "file",
+        choose: (e) => {
+            const files = e.pushFile();
+            let formdata = new FormData()
+            for (const key in files) {
+                formdata.append(key, files[key]);
+                Reflect.deleteProperty(files, key);
+            }
+            $.ajax({
+                type: 'put',
+                url: infoUrl + 'static/file',
+                processData: false,
+                contentType: false,
+                data: formdata
+            }).then((response) => {
+                window.location.reload();
+            }).catch(err => {
+                console.error(err);
+            });
+        }
+    });
+}
 // 清空文本框
 $("#clearInputArea").on("click", () => {
     $("#inputArea").val("");
@@ -282,10 +343,10 @@ $("#uploadTxt").on("click", () => {
     txtLoadingFlag = true;
     const data = $("#inputArea").val() as string;
     if (data === "" || (data !== "" && $.trim(data) === "")) {
-        layui.layer.confirm("输入内容为空,是否继续提交?",{
+        layui.layer.confirm("输入内容为空,是否继续提交?", {
             icon: 3,
             title: "提示"
-        },(index)=>{
+        }, (index) => {
             $("#text").val("");
             layui.layer.close(index);
             return uplaodTxt("");
@@ -302,7 +363,7 @@ $("#readTxt").on("click", () => {
     startLoading("txt", "加载中...");
     $.ajax({
         type: 'get',
-        url: 'https://api.limkim.xyz/test/read'
+        url: baseUrl + 'test/read'
     }).then(response => {
         // XSS脚本注入点
         $("#txtArea").html(response.data === "" ? "暂无内容📭" : response.data);
@@ -326,7 +387,7 @@ $("#readImage").on("click", () => {
     startLoading("imgs", "加载中...");
     $.ajax({
         type: 'get',
-        url: 'https://api.limkim.xyz/test/readImage'
+        url: baseUrl + '/test/readImage'
     }).then(response => {
         const data = response.data;
         if (data.src1 !== "") {
@@ -362,7 +423,7 @@ $("#deleteImage").on("click", () => {
     $("[id^='imgNode']").attr("src", null);
     $.ajax({
         type: 'get',
-        url: 'https://api.limkim.xyz/test/deleteImage'
+        url: baseUrl + 'test/deleteImage'
     }).then(response => {
         if (response.success === 20001) {
             imgLabel.text("删除成功✔");
@@ -404,7 +465,7 @@ $("[id^='fileInput']").on("change", (e) => {
         startLoading("img", "提交中...", index);
         $.ajax({
             type: 'post',
-            url: 'https://api.limkim.xyz/test/uploadImage',
+            url: infoUrl + 'test/uploadImage',
             data: {
                 index,
                 src: base64Url
@@ -495,30 +556,31 @@ $("#mapSwitch").on("click", () => {
     if (!amapData.country || amapData.country !== "中国") {
         return;
     }
-    const status = $("#container")[0].style.opacity;
+    const status = $("#mapContainer")[0].style.opacity;
     if (status === "1") {
-        $("#container").css("height", "1px").css("z-index", -999).css("opacity", 0).css("margin-top", 0);
+        $("#mapContainer").css("height", "1px").css("z-index", -999).css("opacity", 0).css("margin-top", 0);
         $("#mapSwitch img").removeClass("rotate180");
         $("#mapSwitch span span").text("展开地图");
     }
     else if (status === "0") {
-        $("#container").css("height", "calc(100vw - 16px)").css("z-index", "").css("opacity", 1).css("margin-top", "10px");
+        $("#mapContainer").css("height", "calc(100vw - 16px)").css("z-index", "").css("opacity", 1).css("margin-top", "10px");
         $("#mapSwitch img").addClass("rotate180");
         $("#mapSwitch span span").text("收起地图");
     }
     else {
-        $("#container").show();
-        $("#container").css("opacity", 1);
+        $("#mapContainer").show();
+        $("#mapContainer").css("opacity", 1);
         loadder(amapData);
         $("#mapSwitch span span").text("收起地图");
         $("#mapSwitch img").addClass("rotate180");
     }
-})
+});
 // 静态文件管理身份验证
-$("#staticSwitch").on("click", () => {
+$("#staticAuth").on("click", () => {
+    if (atuhorized) return;
     const value = $("#inputArea").val() as string | undefined;
     const reg = /^[0-9]{6}$/
-    if(!value || !reg.test(value)){
+    if (!value || !reg.test(value)) {
         layui.layer.msg("别闹我滴宝~", {
             icon: 5
         });
@@ -526,18 +588,30 @@ $("#staticSwitch").on("click", () => {
     }
     $.ajax({
         type: 'post',
-        url: 'http://localhost:3001/static/verify',
+        url: infoUrl + 'static/verify',
         data: { code: value }
-    }).then(({data}) => {
-        if(data.token){
-            localStorage.setItem("static_token", data.token);
+    }).then(({ data }) => {
+        if (data.token) {
+            localStorage.setItem("static_user_token", data.token);
             layui.layer.msg("登录成功~", {
                 icon: 1
             });
+            $("#staticSwitch").text("资源管理");
         }
-    }).catch(()=>{
+    }).catch(() => {
         layui.layer.msg("你这码也不对呀~", {
             icon: 5
         });
     })
+});
+$("#backDev").on("click", () => {
+    $("#devContainer").show();
+    $("#manageContainer").hide();
 })
+// 静态资源管理页面切换
+$("#staticSwitch").on("click", () => {
+    if (!atuhorized) return;
+    manageInit();
+    $("#devContainer").hide();
+    $("#manageContainer").show();
+});

@@ -9,7 +9,7 @@ export default function loadder (AmapData) {
                 'AMap.ControlBar'
             ], // 需要使用的的插件列表，如比例尺'AMap.Scale'等
         }).then((AMap) => {
-            let map = new AMap.Map('container', {
+            let map = new AMap.Map('mapContainer', {
                 zoom: 8,//级别
                 center: [AmapData.location.split(",")[0], AmapData.location.split(",")[1]],//中心点坐标
                 viewMode: '3D',//使用3D视图

@@ -52,7 +52,7 @@ input {
     width: 0px;
     opacity: 0;
 }
-button {
+#devContainer button {
     cursor: pointer;
     background-color: #409eff;
     border: none;
@@ -61,7 +61,7 @@ button {
     border-radius: 5px;
     box-shadow: 0px 0px 3px 1px #ccc;
 }
-button {
+#devContainer button {
     width: 100px;
     cursor: pointer;
     outline: none;
