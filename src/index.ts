@@ -30,7 +30,6 @@ let amapData: any = {};
 //         _AMapSecurityConfig: { securityJsCode: string };   //加入对象
 //     }
 // }
-let fileDataTable: Layui.TableRendered;
 
 (() => {
     // 请求信息
@@ -289,7 +288,7 @@ function manageInit() {
     $.ajax(infoUrl + "static/allFilesInfo", {
         headers: { "Authorization": localStorage.getItem("static_user_token") }
     }).then(({ data }) => {
-        fileDataTable = layui.table.render({
+        layui.table.render({
             elem: '#fileTable',
             height: 312,
             page: true,
@@ -303,8 +302,8 @@ function manageInit() {
                 { title: '操作', width: 280, templet: '#toolEventDemo' }
             ]]
         });
-    }).catch(()=>{
-
+    }).catch(err => {
+        console.error(err);
     });
     layui.upload.render({
         elem: '#uploadBtn',
@@ -319,18 +318,22 @@ function manageInit() {
                 Reflect.deleteProperty(files, key);
             }
             $.ajax({
-                type: 'put',
+                type: 'post',
                 url: infoUrl + 'static/file',
                 processData: false,
                 contentType: false,
                 data: formdata
             }).then((response) => {
-                window.location.reload();
+                $("#uploadBtn").remove()
+                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>')
+                manageInit()
             }).catch(err => {
                 console.error(err);
             });
         }
     });
+    $("#devContainer").hide();
+    $("#manageContainer").show();
 }
 // 清空文本框
 $("#clearInputArea").on("click", () => {
@@ -597,6 +600,7 @@ $("#staticAuth").on("click", () => {
                 icon: 1
             });
             $("#staticSwitch").text("资源管理");
+            manageInit();
         }
     }).catch(() => {
         layui.layer.msg("你这码也不对呀~", {
@@ -612,6 +616,4 @@ $("#backDev").on("click", () => {
 $("#staticSwitch").on("click", () => {
     if (!atuhorized) return;
     manageInit();
-    $("#devContainer").hide();
-    $("#manageContainer").show();
 });
