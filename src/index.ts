@@ -108,7 +108,7 @@ function timeRender() {
     nowTimeStamp += 1000;
 }
 // 地图和IP渲染
-async function mapRender(response: any) {
+function mapRender(response: any) {
     const AmapData = response.AmapData;
     const czData = response.czData;
     let city = "";
