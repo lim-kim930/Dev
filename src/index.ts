@@ -434,9 +434,11 @@ function tableEventInit() {
     });
 }
 // 上传按钮初始化
-function uploadBtnInit() {
-    $("#uploadBtn").remove();
-    $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
+function uploadBtnInit(selfFlag = false) {
+    if (!selfFlag) {
+        $("#uploadBtn").remove();
+        $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
+    }
     layui.upload.render({
         elem: '#uploadBtn',
         auto: false,
@@ -457,10 +459,7 @@ function uploadBtnInit() {
                 contentType: false,
                 data: formdata
             }).then(() => {
-                $("#uploadBtn").remove();
-                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
                 tableDataInit();
-                uploadBtnInit();
                 layer.closeAll('loading');
                 layer.msg("上传成功~", {
                     icon: 1
@@ -468,10 +467,11 @@ function uploadBtnInit() {
             }).catch((err: JQuery.jqXHR) => {
                 layer.closeAll('loading');
                 layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
-                $("#uploadBtn").remove();
-                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
                 console.error(err);
             });
+            $("#uploadBtn").remove();
+                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
+                uploadBtnInit(true);
         }
     });
 }
