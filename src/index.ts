@@ -121,6 +121,9 @@ function timeRender() {
     // 小时数改变才重新渲染greeting
     if (nowTime.Hour !== lastSecondTime.Hour) {
         switch (nowTime.Hour) {
+            case 5: case 6: case 7: case 8: case 9:
+                $('#greeting').text("早上好!");
+                break;
             case 10: case 11:
                 $('#greeting').text("上午好!");
                 break;
@@ -134,7 +137,7 @@ function timeRender() {
                 $('#greeting').text("晚上好!");
                 break;
             default:
-                $('#greeting').text("早上好!");
+                $('#greeting').text("凌晨好!");
                 break;
         }
         // 小时改变为0时日期改变
