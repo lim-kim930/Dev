@@ -53,6 +53,8 @@ const imgLabel = $("[id^='imgLabel']");
 // 锁
 let imgLoadingFlag = false;
 let txtLoadingFlag = false;
+let ipForbidden = false;
+let ipForbiddenTimer: null | NodeJS.Timeout = null
 // 登录状态
 let atuhorized: boolean = localStorage.getItem("static_user_token") !== null;
 let token = localStorage.getItem("static_user_token");
@@ -470,8 +472,8 @@ function uploadBtnInit(selfFlag = false) {
                 console.error(err);
             });
             $("#uploadBtn").remove();
-                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
-                uploadBtnInit(true);
+            $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
+            uploadBtnInit(true);
         }
     });
 }
@@ -743,6 +745,13 @@ $("#mapSwitch").on("click", () => {
 // 静态文件管理身份验证
 $("#staticAuth").on("click", () => {
     if (atuhorized) return;
+    if(ipForbidden && ipForbiddenTimer) {
+        $("#inputArea").val("");
+        clearTimeout(ipForbiddenTimer);
+        return layer.msg("别闹了,我滴宝~", {
+            icon: 5
+        });
+    }
     const value = $("#inputArea").val() as string | undefined;
     const reg = /^[0-9]{6}$/;
     if (!value || !reg.test(value)) {
@@ -766,9 +775,20 @@ $("#staticAuth").on("click", () => {
             $("#staticSwitch").text("资源管理");
             manageInit();
         }
-    }).catch(() => {
-        layer.msg("你这码也不对呀~", {
-            icon: 5
+    }).catch((err: JQuery.jqXHR) => {
+        $("#inputArea").val("");
+        if (err.status === 403) {
+            ipForbidden = true;
+            layer.msg("让你别闹,IP已被封禁1分钟,老实等着吧,每一次请求都会刷新封禁时间哦", {
+                icon: 4,
+                time: 5000
+            });
+            return ipForbiddenTimer = setTimeout(() => {
+                ipForbidden = false
+            }, 60000);
+        }
+        layer.msg("你这码不对哦~", {
+            icon: 2
         });
     });
 });
