@@ -54,7 +54,7 @@ const imgLabel = $("[id^='imgLabel']");
 let imgLoadingFlag = false;
 let txtLoadingFlag = false;
 let ipForbidden = false;
-let ipForbiddenTimer: null | NodeJS.Timeout = null
+let ipForbiddenTimer: null | NodeJS.Timeout = null;
 // 登录状态
 let atuhorized: boolean = localStorage.getItem("static_user_token") !== null;
 let token = localStorage.getItem("static_user_token");
@@ -460,11 +460,32 @@ function uploadBtnInit(selfFlag = false) {
                 processData: false,
                 contentType: false,
                 data: formdata
-            }).then(() => {
+            }).then((response) => {
                 tableDataInit();
                 layer.closeAll('loading');
-                layer.msg("上传成功~", {
-                    icon: 1
+
+                const urls = response.data.urls as any[];
+                urls.forEach((url) => {
+                    console.log(url.filename, url.url);
+                });
+
+                layer.alert('上传成功~', { icon: 1, title: "提示" }, (index: number) => {
+                    if (urls.length === 1) {
+                        layer.confirm(urls[0].url, { title: "文件链接", btn: ["复制","确定"] }, (index2: number) => {
+                            navigator.clipboard.writeText(urls[0].url as string).then(() => {
+                                layer.msg("复制成功~", {
+                                    icon: 1
+                                });
+                            }, () => {
+                                layer.msg("复制失败咯~", {
+                                    icon: 2
+                                });
+                            });
+                            layer.close(index2);
+                        });
+                    } else {
+                        layer.close(index);
+                    }
                 });
             }).catch((err: JQuery.jqXHR) => {
                 layer.closeAll('loading');
@@ -745,7 +766,7 @@ $("#mapSwitch").on("click", () => {
 // 静态文件管理身份验证
 $("#staticAuth").on("click", () => {
     if (atuhorized) return;
-    if(ipForbidden && ipForbiddenTimer) {
+    if (ipForbidden && ipForbiddenTimer) {
         $("#inputArea").val("");
         clearTimeout(ipForbiddenTimer);
         return layer.msg("别闹了,我滴宝~", {
@@ -785,7 +806,7 @@ $("#staticAuth").on("click", () => {
                 time: 5000
             });
             return ipForbiddenTimer = setTimeout(() => {
-                ipForbidden = false
+                ipForbidden = false;
             }, 60000);
         }
         layer.msg("你这码不对哦~", {
