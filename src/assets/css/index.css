@@ -47,7 +47,7 @@ textarea {
     padding: 10px 15px;
     box-shadow: 0px 0px 10px 1px #ccc;
 }
-input {
+#devContainer input {
     cursor: pointer;
     width: 0px;
     opacity: 0;
@@ -98,7 +98,7 @@ div[id^="pointer"] {
     width: 290px;
     background-color: #dbdcdd9c;
 }
-#container {
+#mapContainer {
     margin-top: 10px;
     width: 100%;
     height: calc(100vw - 16px);

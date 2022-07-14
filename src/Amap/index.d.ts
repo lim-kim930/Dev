@@ -5,4 +5,4 @@
 
 export = loadder;
 
-declare function loadder(AmapData: object): Promise<any>
+declare function loadder(AmapData: any): Promise<any>

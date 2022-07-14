@@ -75,12 +75,17 @@
         </div>
         <hr>
         <h2>所有文件</h2>
-        <table lay-even lay-skin="line" lay-size="lg" id="fileTable"></table>
+        <table lay-even lay-skin="line" lay-size="lg" id="fileTable" lay-filter="fileTable"></table>
     </div>
+    <script type="text/html" id="fileName">
+        {{d.fileName}}
+        <button type="button" style="position: absolute; right: 15px; top: 8px;" class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">
+            <i class="layui-icon">&#xe642;</i>
+        </button>
+    </script>
     <script type="text/html" id="toolEventDemo">
-        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-        <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="edit">下载</a>
-        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="edit">删除</a>
+        <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="download">下载</button>
+        <button type="button" class="layui-btn layui-btn-xs layui-btn-danger" lay-event="delete">删除</button>
     </script>
     <script type="text/javascript">
         window._AMapSecurityConfig = { securityJsCode: '2d6c385974a707d562416a0d4becae69' };

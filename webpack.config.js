@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -65,6 +66,5 @@ module.exports = {
     resolve: {
         extensions: [".ts", "..."],
         fallback: { "crypto": require.resolve("crypto-browserify") }
-    },
-
-}
+    }
+};

@@ -1,16 +1,48 @@
-import { Game2048, ConsoleRenderer } from "./2048"
-import $ from "jquery"
-import loadder from "./Amap/index.js"
-import "./assets/css/index.css"
+/* eslint-disable no-case-declarations */
+// import { Game2048, ConsoleRenderer } from "./2048";
+import $ from "jquery";
+import loadder from "./Amap/index.js";
+import { BaseUrl, testBaseUrl } from "./config";
+import "./assets/css/index.css";
 
 type ImgSrc = null | string
 type OperationType = "txt" | "img" | "imgs"
 type ImageNodeId = "#imgNode1" | "#imgNode2"
 
-const baseUrl = "https://api.limkim.xyz/";
-const infoUrl = "http://localhost:3001/";
+interface amapData {
+    city: string,
+    province: string;
+    isp: string;
+    country: string;
+    district: string;
+    ip: string;
+    location: string;
+    status: string;
+}
 
-let nowTimeStamp: number = 0;
+interface czData {
+    city: string,
+    province: string;
+    isp: string
+}
+
+interface landmark {
+    [key: string]: { x: number, y: number }
+}
+
+interface faceAttributes {
+    age: { value: number };
+    beauty: {
+        female_score: number
+        male_score: number
+    };
+    emotion: { [key: string]: number };
+    glass: { value: any };
+    gender: { value: any };
+
+}
+
+let nowTimeStamp = 0;
 let lastSecondTime = {
     "Hour": -1,
     "Time": ""
@@ -19,12 +51,15 @@ let imgSrc1: ImgSrc = null;
 let imgSrc2: ImgSrc = null;
 const imgLabel = $("[id^='imgLabel']");
 // 锁
-let imgLoadingFlag: boolean = false;
-let txtLoadingFlag: boolean = false;
+let imgLoadingFlag = false;
+let txtLoadingFlag = false;
 // 登录状态
 let atuhorized: boolean = localStorage.getItem("static_user_token") !== null;
+let token = localStorage.getItem("static_user_token");
 
 let amapData: any = {};
+
+const layer = layui.layer;
 // declare global {  //设置全局属性
 //     interface Window {  //window对象属性
 //         _AMapSecurityConfig: { securityJsCode: string };   //加入对象
@@ -35,7 +70,7 @@ let amapData: any = {};
     // 请求信息
     $.ajax({
         type: 'get',
-        url: infoUrl + 'info/sysTime'
+        url: BaseUrl + 'info/sysTime'
     }).then((response) => {
         nowTimeStamp = response.data as number;
         $(".animate").hide();
@@ -43,15 +78,17 @@ let amapData: any = {};
         setInterval(() => {
             timeRender();
         }, 1000);
-    }).catch(err => {
+    }).catch((err: JQuery.jqXHR) => {
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
     $.ajax({
         type: 'get',
-        url: baseUrl + 'ipconfig'
+        url: testBaseUrl + 'ipconfig'
     }).then(response => {
         mapRender(response.data);
-    }).catch(err => {
+    }).catch((err: JQuery.jqXHR) => {
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
 
@@ -72,8 +109,8 @@ let amapData: any = {};
 
 // 时间渲染
 function timeRender() {
-    const time = new Date(<number>nowTimeStamp);
-    let nowTime = {
+    const time = new Date(nowTimeStamp);
+    const nowTime = {
         "Hour": time.getHours(),
         "Time": time.toTimeString()
     };
@@ -108,8 +145,8 @@ function timeRender() {
 }
 // 地图和IP渲染
 function mapRender(response: any) {
-    const AmapData = response.AmapData;
-    const czData = response.czData;
+    const AmapData = response.AmapData as amapData;
+    const czData = response.czData as czData;
     let city = "";
     // 首先判断是不是省份, 过滤掉直辖市和国外
     if (czData.city && czData.city.indexOf("省") !== -1)
@@ -177,7 +214,7 @@ function mapRender(response: any) {
         isp = AmapData.isp ? AmapData.isp : "未知属地/代理IP";
 
     $('#address').text(city + " " + district);
-    $('#ip').text(response.IP + " - " + isp);
+    $('#ip').text(response.IP as string + " - " + isp);
     if (AmapData.country !== "中国")
         return;
     amapData = AmapData;
@@ -186,7 +223,7 @@ function mapRender(response: any) {
 // 图片渲染，传入img标签id和图片地址，算出适应高度并渲染
 function imgRender(id: ImageNodeId, src: string) {
     return new Promise((resolve, reject) => {
-        let img = new Image();
+        const img = new Image();
         img.src = src;
         img.onload = () => {
             if (img.width >= 300)
@@ -224,14 +261,15 @@ function uplaodTxt(data: string) {
     startLoading("txt", "提交中...");
     $.ajax({
         type: 'post',
-        url: baseUrl + 'test/write',
+        url: testBaseUrl + 'test/write',
         data: { data }
     }).then((response) => {
         if (response.success === 20001)
             $("#txtArea").text("提交成功✔");
         txtLoadingFlag = false;
-    }).catch(err => {
+    }).catch((err: JQuery.jqXHR) => {
         txtLoadingFlag = false;
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
 }
@@ -240,8 +278,8 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
     startLoading("img", "正在检测人脸...", index);
     $.ajax({
         type: 'post',
-        url: infoUrl + 'info/faceDetect',
-        data: { imgBase64, return_landmark: 2, return_attributes: "gender,age,eyestatus,mouthstatus,emotion,beauty" }
+        url: BaseUrl + 'info/faceDetect',
+        data: { img_base64: imgBase64, return_landmark: 2, return_attributes: "gender,age,eyestatus,mouthstatus,emotion,beauty" }
     }).then((response) => {
         response = response.data;
         if (response.faces.length === 0) {
@@ -252,13 +290,13 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
         const parmas = response.faces[0];
         // 渲染人脸关键点
         let html = "";
-        Object.keys(parmas.landmark).forEach(landmark => {
+        Object.keys(parmas.landmark as landmark).forEach(landmark => {
             html += "<span style='left: " + parmas.landmark[landmark].x * width / imgWidth + "px; top: " + parmas.landmark[landmark].y * width / imgWidth + "px'></span>";
-        })
+        });
         const rec_data = parmas.face_rectangle;
         $("#pointer" + index).css("top", (rec_data.top - 2) * width / imgWidth).css("left", (rec_data.left - 2) * width / imgWidth).css("width", (rec_data.width) * width / imgWidth).css("height", (rec_data.height) * width / imgWidth).after(html).show();
         // 人脸描述
-        const attributes = parmas.attributes;
+        const attributes = parmas.attributes as faceAttributes;
         const glass = attributes.glass.value === "None" ? "未佩戴" : (attributes.glass.value === "Normal" ? "普通眼镜" : "墨镜");
         const gender = attributes.gender.value === "Male" ? "男" : "女";
         const emotions = attributes.emotion;
@@ -271,67 +309,177 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
             "neutral": "平静",
             "sadness": "伤心",
             "surprise": "惊讶"
-        }
+        };
         Object.keys(emotions).forEach(key => {
             if (emotions[key] >= 40)
                 emotion = translation[key];
-        })
-        $("#imgLabel" + index).html("<div class='info'>性别: " + gender + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emotion + "<br>眼镜: " + glass + "<br>颜值打分(男性): " + parseInt(attributes.beauty.male_score) + " 分<br>颜值打分(女性): " + parseInt(attributes.beauty.female_score) + " 分</div>");
+        });
+        $("#imgLabel" + index).html("<div class='info'>性别: " + gender + "<br>年龄: " + attributes.age.value + "<br>情绪: " + emotion + "<br>眼镜: " + glass + "<br>颜值打分(男性): " + Math.trunc(attributes.beauty.male_score) + " 分<br>颜值打分(女性): " + Math.trunc(attributes.beauty.female_score) + " 分</div>");
         imgLoadingFlag = false;
-    }).catch((err) => {
+    }).catch((err: JQuery.jqXHR) => {
+        if (err.status === 413 || err.responseText.includes("IMAGE_FILE_TOO_LARGE")) {
+            $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
+        }
+        else {
+            layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
+        }
         console.error(err);
-        $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
         imgLoadingFlag = false;
     });
 }
-function manageInit() {
-    $.ajax(infoUrl + "static/allFilesInfo", {
-        headers: { "Authorization": localStorage.getItem("static_user_token") }
-    }).then(({ data }) => {
+// 下载文件
+function downloadFile(url: string, filename: string) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.dispatchEvent(
+        new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        })
+    );
+    document.body.removeChild(link);
+}
+// 表格数据初始化
+function tableDataInit() {
+    $.ajax(BaseUrl + "static/allFilesInfo", {
+        headers: { "Authorization": token }
+    }).then((response) => {
+        const data = response.data as any[];
+        data.forEach((item) => {
+            item.size = item.size / 1000;
+        });
         layui.table.render({
             elem: '#fileTable',
             height: 312,
             page: true,
             data,
             cols: [[ //表头
-                { field: 'fileName', title: '文件名', sort: true },
-                { field: 'size', title: '大小(Byte)', width: 180, sort: true },
-                { field: 'fileType', title: '文件类型', width: 250, sort: true },
-                { field: 'fileOriginName', title: '文件原名', width: 280 },
-                { field: 'uploadTime', title: '上传时间', width: 280, sort: true },
-                { title: '操作', width: 280, templet: '#toolEventDemo' }
+                { field: 'fileName', title: '文件名', sort: true, templet: '#fileName' },
+                { field: 'size', title: '大小(kb)', width: 150, sort: true },
+                { field: 'fileType', title: '文件类型', sort: true, width: 200 },
+                { field: 'fileOriginName', title: '文件原名' },
+                { field: 'uploadTime', title: '上传时间', sort: true, width: 250 },
+                { title: '操作', templet: '#toolEventDemo', width: 150 }
             ]]
         });
-    }).catch(err => {
+    }).catch((err: JQuery.jqXHR) => {
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
+}
+// 表格事件初始化
+function tableEventInit() {
+    layui.table.on('tool(fileTable)', function (e) {
+        const event = e.event;
+        const data = e.data;
+        const fileName = data.fileName as string;
+        switch (event) {
+            case "edit":
+                const tempName = fileName.split(".");
+                const ext = tempName.pop();
+                const name = tempName.join(".");
+                layer.prompt({ title: '更改文件名', formType: 3, value: name, }, (value, index) => {
+                    layer.close(index);
+                    if (value === name) return;
+                    layer.load();
+                    $.ajax(BaseUrl + "static/file/" + data._id, {
+                        method: "put",
+                        headers: { "Authorization": token },
+                        data: {
+                            fileName: value + "." + ext
+                        }
+                    }).then(() => {
+                        layer.closeAll('loading');
+                        layer.msg("修改成功~", {
+                            icon: 1
+                        });
+                        tableDataInit();
+                    }).catch((err: JQuery.jqXHR) => {
+                        layer.closeAll('loading');
+                        layer.msg(err.responseJSON ? err.responseJSON.msg as string : err.responseText, {
+                            icon: 2
+                        });
+                    });
+                });
+                break;
+            case "download":
+                const url = BaseUrl + "static/file/" + fileName;
+                console.log(url);
+                downloadFile(url, fileName);
+                break;
+            case "delete":
+                layer.confirm('确定要删除吗？', { icon: 3 }, (index) => {
+                    layer.close(index);
+                    layer.load();
+                    $.ajax(BaseUrl + "static/file/" + data._id, {
+                        method: "delete",
+                        headers: { "Authorization": token }
+                    }).then(() => {
+                        layer.closeAll('loading');
+                        layer.msg("删除成功~", {
+                            icon: 1
+                        });
+                        tableDataInit();
+                    }).catch((err: JQuery.jqXHR) => {
+                        layer.closeAll('loading');
+                        layer.msg(err.responseJSON ? err.responseJSON.msg as string : err.responseText, {
+                            icon: 2
+                        });
+                    });
+                });
+        }
+    });
+}
+// 上传按钮初始化
+function uploadBtnInit() {
+    $("#uploadBtn").remove();
+    $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
     layui.upload.render({
         elem: '#uploadBtn',
         auto: false,
         multiple: true,
         accept: "file",
         choose: (e) => {
+            layer.load();
             const files = e.pushFile();
-            let formdata = new FormData()
+            const formdata = new FormData();
             for (const key in files) {
                 formdata.append(key, files[key]);
                 Reflect.deleteProperty(files, key);
             }
             $.ajax({
                 type: 'post',
-                url: infoUrl + 'static/file',
+                url: BaseUrl + 'static/file',
                 processData: false,
                 contentType: false,
                 data: formdata
-            }).then((response) => {
-                $("#uploadBtn").remove()
-                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>')
-                manageInit()
-            }).catch(err => {
+            }).then(() => {
+                $("#uploadBtn").remove();
+                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
+                tableDataInit();
+                uploadBtnInit();
+                layer.closeAll('loading');
+                layer.msg("上传成功~", {
+                    icon: 1
+                });
+            }).catch((err: JQuery.jqXHR) => {
+                layer.closeAll('loading');
+                layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
+                $("#uploadBtn").remove();
+                $("#uploadContainer").append('<button type="button" class="layui-btn" id="uploadBtn"><i class="layui-icon">&#xe67c;</i>上传文件</button>');
                 console.error(err);
             });
         }
     });
+}
+// 管理页面初始化
+function manageInit() {
+    tableDataInit();
+    tableEventInit();
+    uploadBtnInit();
     $("#devContainer").hide();
     $("#manageContainer").show();
 }
@@ -346,15 +494,15 @@ $("#uploadTxt").on("click", () => {
     txtLoadingFlag = true;
     const data = $("#inputArea").val() as string;
     if (data === "" || (data !== "" && $.trim(data) === "")) {
-        layui.layer.confirm("输入内容为空,是否继续提交?", {
+        layer.confirm("输入内容为空,是否继续提交?", {
             icon: 3,
             title: "提示"
         }, (index) => {
             $("#text").val("");
-            layui.layer.close(index);
+            layer.close(index);
             return uplaodTxt("");
-        })
-        return txtLoadingFlag = false;;
+        });
+        return txtLoadingFlag = false;
     }
     uplaodTxt(data);
 });
@@ -366,13 +514,15 @@ $("#readTxt").on("click", () => {
     startLoading("txt", "加载中...");
     $.ajax({
         type: 'get',
-        url: baseUrl + 'test/read'
+        url: testBaseUrl + 'test/read'
     }).then(response => {
+        const data = response.data as string;
         // XSS脚本注入点
-        $("#txtArea").html(response.data === "" ? "暂无内容📭" : response.data);
+        $("#txtArea").html(data === "" ? "暂无内容📭" : data);
         txtLoadingFlag = false;
-    }).catch(err => {
+    }).catch((err: JQuery.jqXHR) => {
         txtLoadingFlag = false;
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
 });
@@ -390,11 +540,11 @@ $("#readImage").on("click", () => {
     startLoading("imgs", "加载中...");
     $.ajax({
         type: 'get',
-        url: baseUrl + '/test/readImage'
-    }).then(response => {
+        url: testBaseUrl + 'test/readImage'
+    }).then(async response => {
         const data = response.data;
         if (data.src1 !== "") {
-            imgRender("#imgNode1", data.src1);
+            await imgRender("#imgNode1", data.src1 as string);
             imgSrc1 = data.src1;
             $("#imgLabel1").text("加载成功✔");
         }
@@ -403,7 +553,7 @@ $("#readImage").on("click", () => {
             $("#imgLabel1").text("暂无图片1信息📭");
         }
         if (data.src2 !== "") {
-            imgRender("#imgNode2", data.src2);
+            await imgRender("#imgNode2", data.src2 as string);
             imgSrc2 = data.src2;
             $("#imgLabel2").text("加载成功✔");
         }
@@ -412,8 +562,9 @@ $("#readImage").on("click", () => {
             $("#imgLabel2").text("暂无图片2信息📭");
         }
         imgLoadingFlag = false;
-    }).catch(err => {
+    }).catch((err: JQuery.jqXHR) => {
         imgLoadingFlag = false;
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
 });
@@ -426,15 +577,16 @@ $("#deleteImage").on("click", () => {
     $("[id^='imgNode']").attr("src", null);
     $.ajax({
         type: 'get',
-        url: baseUrl + 'test/deleteImage'
+        url: testBaseUrl + 'test/deleteImage'
     }).then(response => {
         if (response.success === 20001) {
             imgLabel.text("删除成功✔");
             resetImgArea();
         }
         imgLoadingFlag = false;
-    }).catch((err) => {
+    }).catch((err: JQuery.jqXHR) => {
         imgLoadingFlag = false;
+        layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
         console.error(err);
     });
 });
@@ -442,7 +594,7 @@ $("#deleteImage").on("click", () => {
 $("[id^='inputDiv']").on("click", (e) => {
     const index = (e.target.innerText === "上传图片1" ? 1 : 2);
     $("#fileInput" + index).trigger("click");
-})
+});
 // 用户上传图片文件后，获取base64编码并上传
 $("[id^='fileInput']").on("change", (e) => {
     if (imgLoadingFlag)
@@ -453,14 +605,15 @@ $("[id^='fileInput']").on("change", (e) => {
     $("#imgNode" + index).attr("src", null);
     startLoading("img", "读取中...", index);
     const fileElement = document.getElementById('fileInput' + index) as HTMLInputElement;
-    const files = fileElement.files as FileList
-    const file = files[0]
-    fileElement.value = ""
+    const files = fileElement.files as FileList;
+    const file = files[0];
+    fileElement.value = "";
     let base64Url = "";
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onerror = (err) => {
         console.error(err);
+        layer.msg("Read image failed", { icon: 2 });
         imgLoadingFlag = false;
     };
     reader.onload = () => {
@@ -468,7 +621,7 @@ $("[id^='fileInput']").on("change", (e) => {
         startLoading("img", "提交中...", index);
         $.ajax({
             type: 'post',
-            url: infoUrl + 'test/uploadImage',
+            url: testBaseUrl + 'test/uploadImage',
             data: {
                 index,
                 src: base64Url
@@ -484,9 +637,14 @@ $("[id^='fileInput']").on("change", (e) => {
                 imgWidth = await imgRender("#imgNode2", base64Url) as number;
             }
             detectAjax(base64Url, imgWidth, index);
-        }).catch((err: JQueryXHR) => {
-            if (err.status === 413)
+        }).catch((err: JQuery.jqXHR) => {
+            if (index === 1) { imgSrc1 = null; } else { imgSrc2 = null; }
+            if (err.status === 413) {
                 $("#imgLabel" + index).text("图片体积太大啦,换张照片试试吧😜");
+            }
+            else {
+                layer.msg(err.status + " " + (err.responseJSON ? err.responseJSON.msg as string : err.responseText), { icon: 2 });
+            }
             imgLoadingFlag = false;
         });
     };
@@ -497,20 +655,20 @@ $("[id^='recognizeImg']").on("click", (e) => {
         return false;
     const index = (e.target.id === "recognizeImg1" ? 1 : 2);
     if (index === 1 && imgSrc1 === null) {
-        $("#imgLabel1").text("暂无图片1信息📭")
+        $("#imgLabel1").text("暂无图片1信息📭");
         return false;
     }
     else if (index === 2 && imgSrc2 === null) {
-        $("#imgLabel2").text("暂无图片2信息📭")
+        $("#imgLabel2").text("暂无图片2信息📭");
         return false;
     }
     imgLoadingFlag = true;
     const image_base64 = (index === 1 ? imgSrc1 : imgSrc2);
-    let img = new Image();
+    const img = new Image();
     img.src = image_base64 as string;
     img.onload = () => {
         detectAjax(image_base64 as string, img.width, index);
-    }
+    };
 });
 // 对比照片人脸匹配度
 $("#compareImg").on("click", () => {
@@ -535,23 +693,25 @@ $("#compareImg").on("click", () => {
         }
     }).then(response => {
         if (response.confidence !== undefined)
-            $("[id^='imgLabel']").text("相似比为: " + response.confidence + "%")
-        else if (response.faces1.length === 0 && response.faces2.length !== 0) {
-            $("#imgLabel1").text("未检测到人脸,换张照片试试吧😜");
-            $("#imgLabel2").text("比对失败✘");
-        }
-        else if (response.faces2.length === 0 && response.faces1.length !== 0) {
-            $("#imgLabel1").text("比对失败✘");
-            $("#imgLabel2").text("未检测到人脸,换张照片试试吧😜");
-        }
-        else if (response.faces1.length === 0 && response.faces2.length === 0) {
-            $("#imgLabel1").text("未检测到人脸,换张照片试试吧😜");
-            $("#imgLabel2").text("未检测到人脸,换张照片试试吧😜");
+            $("[id^='imgLabel']").text("相似比为: " + response.confidence + "%");
+        else {
+            $("#imgLabel1").text(response.faces1.length === 0 ? "未检测到人脸,换张照片试试吧😜" : "比对失败✘");
+            $("#imgLabel2").text(response.faces2.length === 0 ? "未检测到人脸,换张照片试试吧😜" : "比对失败✘");
         }
         imgLoadingFlag = false;
-    }).catch(() => {
+    }).catch((err: JQuery.jqXHR) => {
         imgLoadingFlag = false;
-        $("[id^='imgLabel']").text("图片1或图片2体积太大啦,换张照片试试吧😜");
+        if (err.responseJSON) {
+            const msg = err.responseJSON.error_message as string;
+            if (msg.includes("IMAGE_FILE_TOO_LARGE")) {
+                if (msg.includes("image_base64_1"))
+                    $("[id^='imgLabel']").text("图片1体积太大啦,换张照片试试吧😜");
+                else
+                    $("[id^='imgLabel']").text("图片2体积太大啦,换张照片试试吧😜");
+            }
+            return layer.msg(err.status + " " + msg, { icon: 2 });
+        }
+        layer.msg(err.status + " " + err.responseText, { icon: 2 });
     });
 });
 // 地图手动控制展开
@@ -573,7 +733,9 @@ $("#mapSwitch").on("click", () => {
     else {
         $("#mapContainer").show();
         $("#mapContainer").css("opacity", 1);
-        loadder(amapData);
+        loadder(amapData).catch((err) => {
+            console.error(err);
+        });
         $("#mapSwitch span span").text("收起地图");
         $("#mapSwitch img").addClass("rotate180");
     }
@@ -582,36 +744,39 @@ $("#mapSwitch").on("click", () => {
 $("#staticAuth").on("click", () => {
     if (atuhorized) return;
     const value = $("#inputArea").val() as string | undefined;
-    const reg = /^[0-9]{6}$/
+    const reg = /^[0-9]{6}$/;
     if (!value || !reg.test(value)) {
-        layui.layer.msg("别闹我滴宝~", {
+        layer.msg("别闹我滴宝~", {
             icon: 5
         });
         return;
     }
     $.ajax({
         type: 'post',
-        url: infoUrl + 'static/verify',
+        url: BaseUrl + 'static/verify',
         data: { code: value }
     }).then(({ data }) => {
         if (data.token) {
-            localStorage.setItem("static_user_token", data.token);
-            layui.layer.msg("登录成功~", {
+            localStorage.setItem("static_user_token", data.token as string);
+            token = data.token;
+            atuhorized = true;
+            layer.msg("登录成功~", {
                 icon: 1
             });
             $("#staticSwitch").text("资源管理");
             manageInit();
         }
     }).catch(() => {
-        layui.layer.msg("你这码也不对呀~", {
+        layer.msg("你这码也不对呀~", {
             icon: 5
         });
-    })
+    });
 });
+// 返回
 $("#backDev").on("click", () => {
     $("#devContainer").show();
     $("#manageContainer").hide();
-})
+});
 // 静态资源管理页面切换
 $("#staticSwitch").on("click", () => {
     if (!atuhorized) return;
