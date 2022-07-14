@@ -331,6 +331,7 @@ function detectAjax(imgBase64: string, imgWidth: number, index: number) {
 function downloadFile(url: string, filename: string) {
     const link = document.createElement("a");
     link.href = url;
+    link.target = "blank";
     link.download = filename;
     document.body.appendChild(link);
     link.dispatchEvent(
@@ -407,7 +408,6 @@ function tableEventInit() {
                 break;
             case "download":
                 const url = BaseUrl + "static/file/" + fileName;
-                console.log(url);
                 downloadFile(url, fileName);
                 break;
             case "delete":
