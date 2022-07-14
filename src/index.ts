@@ -772,7 +772,8 @@ $("#staticAuth").on("click", () => {
             layer.msg("登录成功~", {
                 icon: 1
             });
-            $("#staticSwitch").text("资源管理");
+            $("#staticAuth").hide();
+            $("#staticSwitch").show();
             manageInit();
         }
     }).catch((err: JQuery.jqXHR) => {
