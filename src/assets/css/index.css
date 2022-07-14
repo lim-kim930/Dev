@@ -98,8 +98,11 @@ div[id^="pointer"] {
     width: 290px;
     background-color: #dbdcdd9c;
 }
+button#mapSwitch {
+    margin-bottom: 10px;
+}
 #mapContainer {
-    margin-top: 10px;
+    margin-bottom: 10px;
     width: 100%;
     height: calc(100vw - 16px);
     transition: all 200ms;
