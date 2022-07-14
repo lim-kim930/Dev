@@ -819,6 +819,14 @@ $("#backDev").on("click", () => {
     $("#devContainer").show();
     $("#manageContainer").hide();
 });
+// 登出
+$("#logout").on("click", () => {
+    layer.confirm("确定要登出吗?", {icon: 3, title: "提示"}, (index)=>{
+        layer.close(index);
+        localStorage.removeItem("static_user_token");
+        window.location.reload();
+    });
+});
 // 静态资源管理页面切换
 $("#staticSwitch").on("click", () => {
     if (!atuhorized) return;
