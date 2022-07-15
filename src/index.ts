@@ -417,7 +417,7 @@ function tableEventInit() {
                 downloadFile(url, fileName);
                 break;
             case "delete":
-                layer.confirm('确定要删除吗？', { icon: 3 }, (index) => {
+                layer.confirm('确定要删除吗？', { icon: 3, title: "提示" }, (index) => {
                     layer.close(index);
                     layer.load();
                     $.ajax(BaseUrl + "static/file/" + data._id, {
