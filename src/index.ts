@@ -4,6 +4,7 @@ import $ from "jquery";
 import loadder from "./Amap/index.js";
 import { BaseUrl, testBaseUrl } from "./config";
 import "./assets/css/index.css";
+import { createHmac } from "crypto";
 
 type ImgSrc = null | string
 type OperationType = "txt" | "img" | "imgs"
@@ -772,7 +773,7 @@ $("#staticAuth").on("click", () => {
     if (ipForbidden && ipForbiddenTimer) {
         $("#inputArea").val("");
         clearTimeout(ipForbiddenTimer);
-        return layer.msg("别闹了,我滴宝~", {
+        return layer.msg("乖乖等5分钟吧~", {
             icon: 5
         });
     }
@@ -784,10 +785,12 @@ $("#staticAuth").on("click", () => {
         });
         return;
     }
+    const sha1 = createHmac("SHA1", "limkim");
+    sha1.update(value);
     $.ajax({
         type: 'post',
         url: BaseUrl + 'static/verify',
-        data: { code: value }
+        data: { authorization: sha1.digest("base64") }
     }).then(({ data }) => {
         if (data.token) {
             localStorage.setItem("static_user_token", data.token as string);
@@ -804,15 +807,15 @@ $("#staticAuth").on("click", () => {
         $("#inputArea").val("");
         if (err.status === 403) {
             ipForbidden = true;
-            layer.msg("让你别闹,IP已被封禁1分钟,老实等着吧,每一次请求都会刷新封禁时间哦", {
+            layer.msg("让你别闹,这下好了吧,IP已被封禁5分钟,每一次请求都会刷新封禁时间哦~", {
                 icon: 4,
                 time: 5000
             });
             return ipForbiddenTimer = setTimeout(() => {
                 ipForbidden = false;
-            }, 60000);
+            }, 300000);
         }
-        layer.msg("你这码不对哦~", {
+        layer.msg("身份码不对哦~", {
             icon: 2
         });
     });
