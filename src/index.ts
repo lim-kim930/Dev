@@ -748,12 +748,12 @@ $("#mapSwitch").on("click", () => {
     }
     const status = $("#mapContainer")[0].style.opacity;
     if (status === "1") {
-        $("#mapContainer").css("height", "1px").css("z-index", -999).css("opacity", 0).css("margin-top", 0);
+        $("#mapContainer").css("height", "1px").css("z-index", -999).css("opacity", 0).css("margin-bottom", 0);
         $("#mapSwitch img").removeClass("rotate180");
         $("#mapSwitch span span").text("展开地图");
     }
     else if (status === "0") {
-        $("#mapContainer").css("height", "calc(100vw - 16px)").css("z-index", "").css("opacity", 1).css("margin-top", "10px");
+        $("#mapContainer").css("height", "calc(100vw - 16px)").css("z-index", "").css("opacity", 1).css("margin-bottom", "10px");
         $("#mapSwitch img").addClass("rotate180");
         $("#mapSwitch span span").text("收起地图");
     }
