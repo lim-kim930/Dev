@@ -5,6 +5,7 @@ import loadder from "./Amap/index.js";
 import { BaseUrl, testBaseUrl } from "./config";
 import "./assets/css/index.css";
 import { createHmac } from "crypto";
+import LimPlayer from "./LimPlayer";
 
 type ImgSrc = null | string
 type OperationType = "txt" | "img" | "imgs"
@@ -109,6 +110,34 @@ const layer = layui.layer;
     // const gm2048 = new Game2048(consoleRender);
 
 })();
+
+$(".like button").on("click", ()=>{
+    if($(".like .liked").hasClass("animate")){
+        $(".like .liked").hide();
+        $(".like .liked").removeClass("animate");
+        $(".like .unliked").show();
+        $(".like .unliked").addClass("animate1");
+    } else {
+        $(".like .unliked").hide();
+        $(".like .unliked").removeClass("animate1");
+        $(".like .liked").show();
+        $(".like svg").addClass("animate");
+    }
+})
+
+$(".limplayer-main-controller .shuffle").on("click", ()=>{
+    $(".shuffle svg").addClass("animate");
+    if($(".shuffle svg").hasClass("checked")){
+        $(".shuffle svg").removeClass("checked");
+        $(".shuffle span").hide();
+    } else {
+        $(".shuffle svg").addClass("checked");
+        $(".shuffle span").show();
+    }
+    setTimeout(()=>{
+        $(".shuffle svg").removeClass("animate");
+    },300);
+});
 
 // 时间渲染
 function timeRender() {
@@ -504,6 +533,9 @@ function uploadBtnInit(selfFlag = false) {
 }
 // 管理页面初始化
 function manageInit() {
+    const player = new LimPlayer("player", {autoplay: true, audio: [{name: "666", artist: "555", src: "66666"}]});
+    console.log(player.options);
+    
     tableDataInit();
     tableEventInit();
     uploadBtnInit();

@@ -90,7 +90,7 @@ div[id^="pointer"] {
 .on {
     margin: 10px 0;
 }
-.info {
+.devContainer .info {
     padding: 5px;
     border-radius: 5px;
     font-size: 14px;
