@@ -77,6 +77,10 @@
     font-size: 12px;
 }
 
+.limplayer .limplayer-info .container .like .liked {
+    display: none;
+}
+
 .limplayer-main-controller {
     max-width: 722px;
     width: 40%;
@@ -262,11 +266,11 @@
     gap: 5px;
 }
 
-.animate {
+.animate_beat {
     animation: beat 0.3s linear forwards;
 }
 
-.animate1 {
+.animate_shake {
     animation: shake 0.3s linear forwards;
 }
 

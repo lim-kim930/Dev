@@ -111,33 +111,7 @@ const layer = layui.layer;
 
 })();
 
-$(".like button").on("click", ()=>{
-    if($(".like .liked").hasClass("animate")){
-        $(".like .liked").hide();
-        $(".like .liked").removeClass("animate");
-        $(".like .unliked").show();
-        $(".like .unliked").addClass("animate1");
-    } else {
-        $(".like .unliked").hide();
-        $(".like .unliked").removeClass("animate1");
-        $(".like .liked").show();
-        $(".like svg").addClass("animate");
-    }
-})
 
-$(".limplayer-main-controller .shuffle").on("click", ()=>{
-    $(".shuffle svg").addClass("animate");
-    if($(".shuffle svg").hasClass("checked")){
-        $(".shuffle svg").removeClass("checked");
-        $(".shuffle span").hide();
-    } else {
-        $(".shuffle svg").addClass("checked");
-        $(".shuffle span").show();
-    }
-    setTimeout(()=>{
-        $(".shuffle svg").removeClass("animate");
-    },300);
-});
 
 // 时间渲染
 function timeRender() {
@@ -534,6 +508,15 @@ function uploadBtnInit(selfFlag = false) {
 // 管理页面初始化
 function manageInit() {
     const player = new LimPlayer("player", {autoplay: true, audio: [{name: "666", artist: "555", src: "66666"}]});
+    player.onLikeChanged((value, audio)=>{
+        if(value === "liked") {
+            console.log(66666);
+            
+        } else {
+            console.log(5555555);
+            
+        }
+    });
     console.log(player.options);
     
     tableDataInit();
